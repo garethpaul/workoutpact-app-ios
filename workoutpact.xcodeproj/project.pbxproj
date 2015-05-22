@@ -1,0 +1,484 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A5A8E34F194E51250BEED91D /* libPods-workoutpact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78E8356ECEF93C2EF4C5EA9E /* libPods-workoutpact.a */; };
+		FD1DF15E1B0EA818005F4AE8 /* libPods-workoutpact-PaymentKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FD1DF15D1B0EA818005F4AE8 /* libPods-workoutpact-PaymentKit.a */; };
+		FD41A2DE1B0E5B3300F2019F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD41A2DD1B0E5B3300F2019F /* AppDelegate.swift */; };
+		FD41A2E01B0E5B3300F2019F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD41A2DF1B0E5B3300F2019F /* ViewController.swift */; };
+		FD41A2E31B0E5B3300F2019F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FD41A2E11B0E5B3300F2019F /* Main.storyboard */; };
+		FD41A2E51B0E5B3300F2019F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FD41A2E41B0E5B3300F2019F /* Images.xcassets */; };
+		FD41A2E81B0E5B3300F2019F /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FD41A2E61B0E5B3300F2019F /* LaunchScreen.xib */; };
+		FD41A3021B0E5B8600F2019F /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD41A2FE1B0E5B8600F2019F /* Fabric.framework */; };
+		FD41A3031B0E5B8700F2019F /* DigitsKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD41A2FF1B0E5B8600F2019F /* DigitsKit.framework */; };
+		FD41A3041B0E5B8700F2019F /* DigitsKitResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FD41A3001B0E5B8600F2019F /* DigitsKitResources.bundle */; };
+		FD41A3051B0E5B8700F2019F /* TwitterCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD41A3011B0E5B8600F2019F /* TwitterCore.framework */; };
+		FD41A3081B0E6E3200F2019F /* TwitterKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD41A3061B0E6E3200F2019F /* TwitterKit.framework */; };
+		FD41A3091B0E6E3200F2019F /* TwitterKitResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FD41A3071B0E6E3200F2019F /* TwitterKitResources.bundle */; };
+		FD41A30B1B0E6E4D00F2019F /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD41A30A1B0E6E4D00F2019F /* LoginViewController.swift */; };
+		FD41A30D1B0E724900F2019F /* TwoFactorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD41A30C1B0E724900F2019F /* TwoFactorViewController.swift */; };
+		FD41A30F1B0E75C900F2019F /* Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD41A30E1B0E75C900F2019F /* Hex.swift */; };
+		FD41A3111B0E883500F2019F /* ShakeViewContorller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD41A3101B0E883500F2019F /* ShakeViewContorller.swift */; };
+		FD653C671B0EAFB0004C2D7A /* PaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD653C661B0EAFB0004C2D7A /* PaymentViewController.swift */; };
+		FD71802C1B0EA26100804732 /* PassKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD71802B1B0EA26100804732 /* PassKit.framework */; };
+		FD71802E1B0EA26700804732 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD71802D1B0EA26700804732 /* Security.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4400D9BB3052C8B62AD90625 /* Pods-workoutpact.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-workoutpact.release.xcconfig"; path = "Pods/Target Support Files/Pods-workoutpact/Pods-workoutpact.release.xcconfig"; sourceTree = "<group>"; };
+		78E8356ECEF93C2EF4C5EA9E /* libPods-workoutpact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-workoutpact.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DFA917BDF1A5375E8F4D9AB /* Pods-workoutpact.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-workoutpact.debug.xcconfig"; path = "Pods/Target Support Files/Pods-workoutpact/Pods-workoutpact.debug.xcconfig"; sourceTree = "<group>"; };
+		FD1DF15B1B0EA7F7005F4AE8 /* libPods-workoutpact-PaymentKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPods-workoutpact-PaymentKit.a"; path = "Pods/../build/Debug-iphoneos/libPods-workoutpact-PaymentKit.a"; sourceTree = "<group>"; };
+		FD1DF15D1B0EA818005F4AE8 /* libPods-workoutpact-PaymentKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPods-workoutpact-PaymentKit.a"; path = "Pods/../build/Debug-iphoneos/libPods-workoutpact-PaymentKit.a"; sourceTree = "<group>"; };
+		FD41A2D81B0E5B3300F2019F /* workoutpact.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = workoutpact.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD41A2DC1B0E5B3300F2019F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FD41A2DD1B0E5B3300F2019F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		FD41A2DF1B0E5B3300F2019F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		FD41A2E21B0E5B3300F2019F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		FD41A2E41B0E5B3300F2019F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		FD41A2E71B0E5B3300F2019F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		FD41A2F21B0E5B3300F2019F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FD41A2F31B0E5B3300F2019F /* workoutpactTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = workoutpactTests.swift; sourceTree = "<group>"; };
+		FD41A2FE1B0E5B8600F2019F /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		FD41A2FF1B0E5B8600F2019F /* DigitsKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DigitsKit.framework; sourceTree = "<group>"; };
+		FD41A3001B0E5B8600F2019F /* DigitsKitResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = DigitsKitResources.bundle; path = DigitsKit.framework/Versions/A/Resources/DigitsKitResources.bundle; sourceTree = "<group>"; };
+		FD41A3011B0E5B8600F2019F /* TwitterCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TwitterCore.framework; sourceTree = "<group>"; };
+		FD41A3061B0E6E3200F2019F /* TwitterKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TwitterKit.framework; sourceTree = "<group>"; };
+		FD41A3071B0E6E3200F2019F /* TwitterKitResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = TwitterKitResources.bundle; path = TwitterKit.framework/Versions/A/Resources/TwitterKitResources.bundle; sourceTree = "<group>"; };
+		FD41A30A1B0E6E4D00F2019F /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		FD41A30C1B0E724900F2019F /* TwoFactorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwoFactorViewController.swift; sourceTree = "<group>"; };
+		FD41A30E1B0E75C900F2019F /* Hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hex.swift; sourceTree = "<group>"; };
+		FD41A3101B0E883500F2019F /* ShakeViewContorller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShakeViewContorller.swift; sourceTree = "<group>"; };
+		FD653C661B0EAFB0004C2D7A /* PaymentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaymentViewController.swift; sourceTree = "<group>"; };
+		FD71802B1B0EA26100804732 /* PassKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PassKit.framework; path = System/Library/Frameworks/PassKit.framework; sourceTree = SDKROOT; };
+		FD71802D1B0EA26700804732 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		FD7863991B0EA3C200AE9B4B /* BridgeHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgeHeader.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FD41A2D51B0E5B3300F2019F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FD1DF15E1B0EA818005F4AE8 /* libPods-workoutpact-PaymentKit.a in Frameworks */,
+				FD71802E1B0EA26700804732 /* Security.framework in Frameworks */,
+				FD71802C1B0EA26100804732 /* PassKit.framework in Frameworks */,
+				FD41A3021B0E5B8600F2019F /* Fabric.framework in Frameworks */,
+				FD41A3051B0E5B8700F2019F /* TwitterCore.framework in Frameworks */,
+				FD41A3031B0E5B8700F2019F /* DigitsKit.framework in Frameworks */,
+				FD41A3081B0E6E3200F2019F /* TwitterKit.framework in Frameworks */,
+				A5A8E34F194E51250BEED91D /* libPods-workoutpact.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		36C992B9E54EBC98ED570593 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FD1DF15D1B0EA818005F4AE8 /* libPods-workoutpact-PaymentKit.a */,
+				FD1DF15B1B0EA7F7005F4AE8 /* libPods-workoutpact-PaymentKit.a */,
+				FD71802D1B0EA26700804732 /* Security.framework */,
+				FD71802B1B0EA26100804732 /* PassKit.framework */,
+				78E8356ECEF93C2EF4C5EA9E /* libPods-workoutpact.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		993822F163BDE026F75E48A4 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7DFA917BDF1A5375E8F4D9AB /* Pods-workoutpact.debug.xcconfig */,
+				4400D9BB3052C8B62AD90625 /* Pods-workoutpact.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		FD41A2CF1B0E5B3300F2019F = {
+			isa = PBXGroup;
+			children = (
+				FD41A3061B0E6E3200F2019F /* TwitterKit.framework */,
+				FD41A3071B0E6E3200F2019F /* TwitterKitResources.bundle */,
+				FD41A2FE1B0E5B8600F2019F /* Fabric.framework */,
+				FD41A2FF1B0E5B8600F2019F /* DigitsKit.framework */,
+				FD41A3001B0E5B8600F2019F /* DigitsKitResources.bundle */,
+				FD41A3011B0E5B8600F2019F /* TwitterCore.framework */,
+				FD41A2DA1B0E5B3300F2019F /* workoutpact */,
+				FD41A2F01B0E5B3300F2019F /* workoutpactTests */,
+				FD41A2D91B0E5B3300F2019F /* Products */,
+				36C992B9E54EBC98ED570593 /* Frameworks */,
+				993822F163BDE026F75E48A4 /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		FD41A2D91B0E5B3300F2019F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FD41A2D81B0E5B3300F2019F /* workoutpact.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FD41A2DA1B0E5B3300F2019F /* workoutpact */ = {
+			isa = PBXGroup;
+			children = (
+				FD41A2DD1B0E5B3300F2019F /* AppDelegate.swift */,
+				FD41A2DF1B0E5B3300F2019F /* ViewController.swift */,
+				FD41A30C1B0E724900F2019F /* TwoFactorViewController.swift */,
+				FD41A30A1B0E6E4D00F2019F /* LoginViewController.swift */,
+				FD653C661B0EAFB0004C2D7A /* PaymentViewController.swift */,
+				FD41A3101B0E883500F2019F /* ShakeViewContorller.swift */,
+				FD7863991B0EA3C200AE9B4B /* BridgeHeader.h */,
+				FD41A30E1B0E75C900F2019F /* Hex.swift */,
+				FD41A2E11B0E5B3300F2019F /* Main.storyboard */,
+				FD41A2E41B0E5B3300F2019F /* Images.xcassets */,
+				FD41A2E61B0E5B3300F2019F /* LaunchScreen.xib */,
+				FD41A2DB1B0E5B3300F2019F /* Supporting Files */,
+			);
+			path = workoutpact;
+			sourceTree = "<group>";
+		};
+		FD41A2DB1B0E5B3300F2019F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FD41A2DC1B0E5B3300F2019F /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		FD41A2F01B0E5B3300F2019F /* workoutpactTests */ = {
+			isa = PBXGroup;
+			children = (
+				FD41A2F31B0E5B3300F2019F /* workoutpactTests.swift */,
+				FD41A2F11B0E5B3300F2019F /* Supporting Files */,
+			);
+			path = workoutpactTests;
+			sourceTree = "<group>";
+		};
+		FD41A2F11B0E5B3300F2019F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FD41A2F21B0E5B3300F2019F /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FD41A2D71B0E5B3300F2019F /* workoutpact */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FD41A2F71B0E5B3300F2019F /* Build configuration list for PBXNativeTarget "workoutpact" */;
+			buildPhases = (
+				5B8DCE0EAC226FD8474D6290 /* Check Pods Manifest.lock */,
+				FD41A2D41B0E5B3300F2019F /* Sources */,
+				FD41A2D51B0E5B3300F2019F /* Frameworks */,
+				FD41A2D61B0E5B3300F2019F /* Resources */,
+				FD41A2FD1B0E5B7900F2019F /* ShellScript */,
+				D85C64113982C166561D03B4 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = workoutpact;
+			productName = workoutpact;
+			productReference = FD41A2D81B0E5B3300F2019F /* workoutpact.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FD41A2D01B0E5B3300F2019F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = gpj;
+				TargetAttributes = {
+					FD41A2D71B0E5B3300F2019F = {
+						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 53AF9EMAN4;
+					};
+				};
+			};
+			buildConfigurationList = FD41A2D31B0E5B3300F2019F /* Build configuration list for PBXProject "workoutpact" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FD41A2CF1B0E5B3300F2019F;
+			productRefGroup = FD41A2D91B0E5B3300F2019F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FD41A2D71B0E5B3300F2019F /* workoutpact */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FD41A2D61B0E5B3300F2019F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FD41A3041B0E5B8700F2019F /* DigitsKitResources.bundle in Resources */,
+				FD41A2E31B0E5B3300F2019F /* Main.storyboard in Resources */,
+				FD41A2E81B0E5B3300F2019F /* LaunchScreen.xib in Resources */,
+				FD41A2E51B0E5B3300F2019F /* Images.xcassets in Resources */,
+				FD41A3091B0E6E3200F2019F /* TwitterKitResources.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5B8DCE0EAC226FD8474D6290 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D85C64113982C166561D03B4 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-workoutpact/Pods-workoutpact-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FD41A2FD1B0E5B7900F2019F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run abb870ac2c6cd77fc0a3ee166f786a86748f4eb9 47d331d25396fd56e08c5c5891c16a003ba5647e584bf8fc07feb0e8ae92ab92";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FD41A2D41B0E5B3300F2019F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FD653C671B0EAFB0004C2D7A /* PaymentViewController.swift in Sources */,
+				FD41A30D1B0E724900F2019F /* TwoFactorViewController.swift in Sources */,
+				FD41A30F1B0E75C900F2019F /* Hex.swift in Sources */,
+				FD41A30B1B0E6E4D00F2019F /* LoginViewController.swift in Sources */,
+				FD41A3111B0E883500F2019F /* ShakeViewContorller.swift in Sources */,
+				FD41A2E01B0E5B3300F2019F /* ViewController.swift in Sources */,
+				FD41A2DE1B0E5B3300F2019F /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		FD41A2E11B0E5B3300F2019F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FD41A2E21B0E5B3300F2019F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		FD41A2E61B0E5B3300F2019F /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FD41A2E71B0E5B3300F2019F /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		FD41A2F51B0E5B3300F2019F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FD41A2F61B0E5B3300F2019F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FD41A2F81B0E5B3300F2019F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7DFA917BDF1A5375E8F4D9AB /* Pods-workoutpact.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					/Users/gjones/Dropbox/Downloads/StripeiOS,
+				);
+				INFOPLIST_FILE = workoutpact/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = /Users/gareth/Downloads/workoutpact/workoutpact/BridgeHeader.h;
+				VALID_ARCHS = "armv7 armv7s arm64";
+			};
+			name = Debug;
+		};
+		FD41A2F91B0E5B3300F2019F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4400D9BB3052C8B62AD90625 /* Pods-workoutpact.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					/Users/gjones/Dropbox/Downloads/StripeiOS,
+				);
+				INFOPLIST_FILE = workoutpact/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = /Users/gareth/Downloads/workoutpact/workoutpact/BridgeHeader.h;
+				VALID_ARCHS = "armv7 armv7s arm64";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FD41A2D31B0E5B3300F2019F /* Build configuration list for PBXProject "workoutpact" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FD41A2F51B0E5B3300F2019F /* Debug */,
+				FD41A2F61B0E5B3300F2019F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FD41A2F71B0E5B3300F2019F /* Build configuration list for PBXNativeTarget "workoutpact" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FD41A2F81B0E5B3300F2019F /* Debug */,
+				FD41A2F91B0E5B3300F2019F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FD41A2D01B0E5B3300F2019F /* Project object */;
+}
