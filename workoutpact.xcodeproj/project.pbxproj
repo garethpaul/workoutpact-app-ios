@@ -415,7 +415,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/Users/gjones/Dropbox/Downloads/StripeiOS,
 				);
 				INFOPLIST_FILE = workoutpact/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -425,8 +424,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = /Users/gareth/Downloads/workoutpact/workoutpact/BridgeHeader.h;
+				SWIFT_OBJC_BRIDGING_HEADER = workoutpact/BridgeHeader.h;
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Debug;
@@ -441,7 +439,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/Users/gjones/Dropbox/Downloads/StripeiOS,
 				);
 				INFOPLIST_FILE = workoutpact/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -451,8 +448,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = /Users/gareth/Downloads/workoutpact/workoutpact/BridgeHeader.h;
+				SWIFT_OBJC_BRIDGING_HEADER = workoutpact/BridgeHeader.h;
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Release;

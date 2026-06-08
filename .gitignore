@@ -18,6 +18,9 @@ DerivedData
 *.xcuserstate
 Info.plist
 *.plist
+!workoutpact/Info.plist
+__pycache__/
+*.pyc
 
 # CocoaPods
 #
