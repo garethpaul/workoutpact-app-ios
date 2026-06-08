@@ -37,7 +37,9 @@ class TwoFactorViewController: UIViewController {
                 return
             }
 
-            self.performSegueWithIdentifier("protected", sender: self)
+            dispatch_async(dispatch_get_main_queue(), {
+                self.performSegueWithIdentifier("protected", sender: self)
+            })
         }
     }
 

@@ -11,7 +11,7 @@ import TwitterKit
 
 class ViewController: UIViewController, UITextFieldDelegate {
 
-    var kbHeight: CGFloat!
+    var kbHeight: CGFloat = 0
 
     @IBAction func logOut(sender: AnyObject) {
         Digits.sharedInstance().logOut()
@@ -88,7 +88,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
 
     func animateTextField(up: Bool) {
-        var movement = (up ? -kbHeight : kbHeight)
+        var movement = up ? -kbHeight : kbHeight
 
         UIView.animateWithDuration(0.3, animations: {
             self.view.frame = CGRectOffset(self.view.frame, 0, movement)
@@ -97,4 +97,3 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 
 }
-

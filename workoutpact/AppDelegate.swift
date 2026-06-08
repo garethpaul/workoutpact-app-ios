@@ -11,21 +11,29 @@ import Fabric
 import DigitsKit
 import TwitterKit
 
+func configuredStripePublishableKey() -> String? {
+    if let key = NSBundle.mainBundle().objectForInfoDictionaryKey("StripePublishableKey") as? String {
+        let trimmedKey = key.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+        if count(trimmedKey) > 0 && trimmedKey.hasPrefix("pk_") {
+            return trimmedKey
+        }
+    }
+
+    return nil
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    let StripePublishableKey = ""
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         Fabric.with([Digits(), Twitter()])
-        var publishableKey = StripePublishableKey
-        if let configuredPublishableKey = NSBundle.mainBundle().objectForInfoDictionaryKey("StripePublishableKey") as? String {
-            publishableKey = configuredPublishableKey
-        }
-        if !publishableKey.isEmpty {
+        if let publishableKey = configuredStripePublishableKey() {
             Stripe.setDefaultPublishableKey(publishableKey)
+        } else {
+            NSLog("Stripe publishable key is not configured; payment tokenization is disabled.")
         }
 
         return true

@@ -64,7 +64,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 - `workoutpact/Info.plist` contains placeholder URL scheme metadata only. Replace placeholder Twitter/Digits/Fabric values locally when running the legacy prototype, and do not commit real credentials.
-- `AppDelegate.swift` intentionally leaves the Stripe publishable key empty in source. Configure payment credentials outside the repository and keep real charges disabled unless a backend contract and tests exist.
+- `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure a real `pk_` publishable key locally and keep billing disabled unless a backend contract and tests exist.
+- The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 
 ## Security and Privacy Notes
 

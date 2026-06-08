@@ -39,7 +39,7 @@ Files:
 
 Approach:
 
-- Add a minimal tracked app `Info.plist` with bundle metadata, storyboard references, iOS deployment compatibility, URL type placeholders for Twitter/Digits, and contact/privacy usage copy tied to Digits contact flows.
+- Add minimal tracked app and test `Info.plist` files with bundle metadata, storyboard references, iOS deployment compatibility, URL type placeholders for Twitter/Digits, a local-only Stripe publishable key placeholder, and contact/privacy usage copy tied to Digits contact flows.
 - Replace the absolute `SWIFT_OBJC_BRIDGING_HEADER[arch=*]` value with the repo-relative `workoutpact/BridgeHeader.h`.
 
 Test scenarios:
@@ -76,7 +76,7 @@ Files:
 
 Approach:
 
-- Document the new make targets and the fact that no real credentials should be committed.
+- Document the new make targets, the local-only Stripe publishable key placeholder, and the fact that no real credentials should be committed.
 - Capture this pass in a short changelog entry.
 
 Test scenarios:

@@ -17,6 +17,6 @@ build:
 		xcodebuild -workspace workoutpact.xcworkspace -scheme workoutpact -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO; \
 	fi
 
-verify: test
+verify: lint test build
 
-check: lint test build verify
+check: verify

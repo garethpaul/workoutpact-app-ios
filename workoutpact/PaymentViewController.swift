@@ -20,7 +20,9 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         paymentView = PTKView(frame: CGRectMake(15, 20, 290, 55))
         paymentView?.center = view.center
         paymentView?.delegate = self
-        view.addSubview(paymentView!)
+        if let paymentInput = paymentView {
+            view.addSubview(paymentInput)
+        }
 
         payButton = UIBarButtonItem(title: "Submit", style: UIBarButtonItemStyle.Plain, target: self, action: "createToken")
         payButton!.enabled = false
@@ -33,23 +35,40 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
     }
 
     func createToken() {
+        if paymentView == nil || paymentView!.card == nil {
+            NSLog("Payment card input is not ready for tokenization.")
+            return
+        }
+
+        let paymentCard = paymentView!.card
+        payButton!.enabled = false
+
         let card = STPCard()
-        card.number = paymentView!.card.number
-        card.expMonth = paymentView!.card.expMonth
-        card.expYear = paymentView!.card.expYear
-        card.cvc = paymentView!.card.cvc
+        card.number = paymentCard.number
+        card.expMonth = paymentCard.expMonth
+        card.expYear = paymentCard.expYear
+        card.cvc = paymentCard.cvc
 
         STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
-            if error != nil || token == nil {
-                return
-            }
+            dispatch_async(dispatch_get_main_queue(), {
+                self.payButton!.enabled = true
+                if error != nil || token == nil {
+                    NSLog("Stripe tokenization failed: \(error)")
+                    return
+                }
 
-            self.handleToken(token);
+                self.handleToken(token);
+            })
         })
 
     }
 
     func handleToken(token: STPToken!) {
+        if token == nil {
+            NSLog("Stripe returned an empty token.")
+            return
+        }
+
         // Send token to a backend only after a real billing flow exists.
         self.performSegueWithIdentifier("shake", sender: self)
 

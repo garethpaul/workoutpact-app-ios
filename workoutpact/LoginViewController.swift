@@ -26,8 +26,10 @@ class LoginViewController: UIViewController {
 
             // ensure that presentViewController happens from the main thread/queue
             dispatch_async(dispatch_get_main_queue(), {
-                let controller = self.storyboard!.instantiateViewControllerWithIdentifier("TwoFactorViewController") as! TwoFactorViewController
-                self.presentViewController(controller, animated: true, completion: nil)
+                if let storyboard = self.storyboard {
+                    let controller = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as! TwoFactorViewController
+                    self.presentViewController(controller, animated: true, completion: nil)
+                }
             });
             
 
