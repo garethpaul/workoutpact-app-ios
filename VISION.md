@@ -46,3 +46,6 @@ avoid collecting health or behavior data without a privacy model.
 - Checked-in payment or social credentials
 - Automatic social posts
 - Real billing behavior without backend safeguards
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
