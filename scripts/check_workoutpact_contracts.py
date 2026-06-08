@@ -142,13 +142,33 @@ def main():
         failures,
     )
     require(
+        'hasPrefix("pk_")' in app_delegate,
+        "Stripe publishable key loader must validate configured values as pk_* keys",
+        failures,
+    )
+    require(
+        not re.search(r"pk_(?:test|live)_[A-Za-z0-9]{8,}", app_delegate + str(app_plist)),
+        "Stripe publishable keys must not be committed to source",
+        failures,
+    )
+    require(
         "error != nil || session == nil" in login,
         "Twitter login must not advance to phone verification on cancelled or failed login",
         failures,
     )
     require(
+        "if let storyboard = self.storyboard" in login,
+        "Twitter login must guard storyboard lookup before presenting phone verification",
+        failures,
+    )
+    require(
         "error != nil || session == nil" in two_factor,
         "Digits verification must not advance to protected content on cancelled or failed verification",
+        failures,
+    )
+    require(
+        "dispatch_async(dispatch_get_main_queue()" in two_factor,
+        "Digits verification must perform protected segue on the main queue",
         failures,
     )
     require(
@@ -164,6 +184,11 @@ def main():
     require(
         "error != nil || token == nil" in payment,
         "payment flow must not advance when Stripe tokenization fails",
+        failures,
+    )
+    require(
+        "dispatch_async(dispatch_get_main_queue()" in payment,
+        "payment token callback must return to the main queue before UI updates",
         failures,
     )
     require(

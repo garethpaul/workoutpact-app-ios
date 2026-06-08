@@ -38,12 +38,15 @@ Approach:
 
 - Return early when Twitter, Digits, or Stripe callbacks include an error or nil session/token.
 - Keep the payment submit button disabled until PaymentKit reports a valid card.
+- Return to the main queue before UI transitions from asynchronous callbacks.
+- Guard storyboard and payment input lookups before using force-unwrapped values.
 
 Test scenarios:
 
 - Static check fails when login or Digits callbacks can advance on errors.
 - Static check fails when Stripe tokenization can advance on errors or nil tokens.
 - Static check fails when the submit button starts enabled before validation.
+- Static check fails when callback-driven UI transitions are not dispatched to the main queue.
 
 ### U2: Explicit Sharing And Local Payment Configuration
 
@@ -59,6 +62,7 @@ Approach:
 
 - Add a confirmation alert before opening the Twitter composer from a shake gesture.
 - Read the Stripe publishable key from `Info.plist` local configuration while keeping the source value empty.
+- Validate that configured Stripe values are publishable `pk_*` keys and reject committed real keys.
 - Track the test bundle plist referenced by the Xcode project.
 - Extend static contracts for the new auth, payment, sharing, and plist boundaries.
 
