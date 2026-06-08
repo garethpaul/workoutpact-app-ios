@@ -36,6 +36,11 @@ Contribution rules:
 
 ## Security And Responsible Use
 
+Canonical security policy and reporting:
+
+- [`SECURITY.md`](SECURITY.md)
+
+
 The app touches identity, payment cards, phone verification, and workout claims.
 It should never store raw card data, should keep sharing explicit, and should
 avoid collecting health or behavior data without a privacy model.
