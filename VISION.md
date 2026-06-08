@@ -40,7 +40,7 @@ The app touches identity, payment cards, phone verification, and workout claims.
 It should never store raw card data, should keep sharing explicit, and should
 avoid collecting health or behavior data without a privacy model.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Raw card storage
 - Checked-in payment or social credentials
