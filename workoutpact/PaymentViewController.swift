@@ -23,7 +23,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         view.addSubview(paymentView!)
 
         payButton = UIBarButtonItem(title: "Submit", style: UIBarButtonItemStyle.Plain, target: self, action: "createToken")
-        payButton!.enabled = true
+        payButton!.enabled = false
         navigationItem.rightBarButtonItem = payButton
 
     }
@@ -40,13 +40,17 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         card.cvc = paymentView!.card.cvc
 
         STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
+            if error != nil || token == nil {
+                return
+            }
+
             self.handleToken(token);
         })
 
     }
 
     func handleToken(token: STPToken!) {
-        //send token to backend and create charge
+        // Send token to a backend only after a real billing flow exists.
         self.performSegueWithIdentifier("shake", sender: self)
 
     }

@@ -15,12 +15,18 @@ import TwitterKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    let StripePublishableKey = "" as String!
+    let StripePublishableKey = ""
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         Fabric.with([Digits(), Twitter()])
-        Stripe.setDefaultPublishableKey(StripePublishableKey)
+        var publishableKey = StripePublishableKey
+        if let configuredPublishableKey = NSBundle.mainBundle().objectForInfoDictionaryKey("StripePublishableKey") as? String {
+            publishableKey = configuredPublishableKey
+        }
+        if !publishableKey.isEmpty {
+            Stripe.setDefaultPublishableKey(publishableKey)
+        }
 
         return true
     }
@@ -49,4 +55,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
-

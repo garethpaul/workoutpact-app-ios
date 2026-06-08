@@ -20,6 +20,10 @@ class LoginViewController: UIViewController {
         let logInButton = TWTRLogInButton(logInCompletion: {
             (session: TWTRSession!, error: NSError!) in
             // play with Twitter session
+            if error != nil || session == nil {
+                return
+            }
+
             // ensure that presentViewController happens from the main thread/queue
             dispatch_async(dispatch_get_main_queue(), {
                 let controller = self.storyboard!.instantiateViewControllerWithIdentifier("TwoFactorViewController") as! TwoFactorViewController
@@ -45,4 +49,3 @@ class LoginViewController: UIViewController {
     
     
 }
-

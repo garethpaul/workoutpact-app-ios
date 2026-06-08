@@ -19,6 +19,7 @@ DerivedData
 Info.plist
 *.plist
 !workoutpact/Info.plist
+!workoutpactTests/Info.plist
 __pycache__/
 *.pyc
 

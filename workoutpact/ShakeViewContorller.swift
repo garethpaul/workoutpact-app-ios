@@ -36,20 +36,28 @@ class ShakeViewController: UIViewController {
 
     override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent) {
         if(event.subtype == UIEventSubtype.MotionShake) {
-            let composer = TWTRComposer()
+            let alert = UIAlertController(title: "Share workout", message: "Post your completed workout to Twitter?", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: { action in
+                self.presentTweetComposer()
+            }))
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+    }
 
-            composer.setText("Just finshed my workout via #workoutpact")
-            composer.setImage(UIImage(named: "workoutLogo"))
+    func presentTweetComposer() {
+        let composer = TWTRComposer()
 
-            composer.showWithCompletion { (result) -> Void in
-                if (result == TWTRComposerResult.Cancelled) {
-                    println("Tweet composition cancelled")
-                }
-                else {
-                    println("Sending tweet!")
-                }
+        composer.setText("Just finished my workout via #workoutpact")
+        composer.setImage(UIImage(named: "workoutLogo"))
+
+        composer.showWithCompletion { (result) -> Void in
+            if (result == TWTRComposerResult.Cancelled) {
+                println("Tweet composition cancelled")
             }
-
+            else {
+                println("Sending tweet!")
+            }
         }
     }
 
@@ -63,4 +71,3 @@ class ShakeViewController: UIViewController {
     
     
 }
-

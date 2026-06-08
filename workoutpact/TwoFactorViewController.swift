@@ -33,6 +33,10 @@ class TwoFactorViewController: UIViewController {
         let digits = Digits.sharedInstance()
         digits.authenticateWithDigitsAppearance(digitsAppearance, viewController: nil, title: "Two Factor Authentication") { (session, error) in
             // Inspect session/error objects
+            if error != nil || session == nil {
+                return
+            }
+
             self.performSegueWithIdentifier("protected", sender: self)
         }
     }
@@ -44,4 +48,3 @@ class TwoFactorViewController: UIViewController {
     
     
 }
-
