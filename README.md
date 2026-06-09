@@ -86,6 +86,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-08-workoutpact-build-privacy-contracts.md` and
   `docs/plans/2026-06-08-workoutpact-auth-payment-sharing-guards.md` for the
   current build, privacy, auth, payment, and sharing baselines.
+- See `docs/plans/2026-06-08-workoutpact-logout-navigation-guard.md` for the
+  logout navigation guard contract.
 
 ## Contributing
 

@@ -12,6 +12,7 @@ DOCS_PLANS = ROOT / "docs/plans"
 CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-08-workoutpact-build-privacy-contracts.md",
     DOCS_PLANS / "2026-06-08-workoutpact-auth-payment-sharing-guards.md",
+    DOCS_PLANS / "2026-06-08-workoutpact-logout-navigation-guard.md",
 ]
 
 
@@ -213,6 +214,11 @@ def main():
     require(
         "var kbHeight: CGFloat = 0" in workout,
         "keyboard animation state must not use an implicitly unwrapped height",
+        failures,
+    )
+    require(
+        "if let storyboard = self.storyboard" in workout and "self.storyboard!" not in workout,
+        "logout navigation must guard storyboard lookup before presenting login",
         failures,
     )
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)

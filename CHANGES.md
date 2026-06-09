@@ -2,6 +2,7 @@
 
 ## 2026-06-08
 
+- Guarded logout navigation before presenting the login controller.
 - Added docs-plan coverage for the WorkoutPact build/privacy and auth/payment
   baselines to the static contract checker.
 - Restored the tracked app and test `Info.plist` files referenced by the Xcode project.

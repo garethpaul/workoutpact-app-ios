@@ -17,8 +17,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         Digits.sharedInstance().logOut()
         Twitter.sharedInstance().logOut()
         dispatch_async(dispatch_get_main_queue(), {
-            let controller = self.storyboard!.instantiateViewControllerWithIdentifier("LoginViewController") as! LoginViewController
-            self.presentViewController(controller, animated: true, completion: nil)
+            if let storyboard = self.storyboard {
+                let controller = storyboard.instantiateViewControllerWithIdentifier("LoginViewController") as! LoginViewController
+                self.presentViewController(controller, animated: true, completion: nil)
+            }
         });
     }
     
