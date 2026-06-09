@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-09
+
+- Guarded PaymentKit input access throughout token creation instead of
+  force-unwrapping `paymentView`.
+- Added static checker coverage for the payment input guard.
+
 ## 2026-06-08
 
 - Guarded payment submit-button state updates instead of force-unwrapping the

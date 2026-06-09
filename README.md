@@ -56,7 +56,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
-  and payment-button static contracts
+  payment input, and payment-button static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
@@ -91,6 +91,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   logout navigation guard contract.
 - See `docs/plans/2026-06-08-workoutpact-payment-button-guard.md` for guarded
   payment submit-button state updates.
+- See `docs/plans/2026-06-09-workoutpact-payment-input-guard.md` for guarded
+  PaymentKit input access before tokenization.
 
 ## Contributing
 

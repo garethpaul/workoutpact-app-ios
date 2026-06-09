@@ -14,6 +14,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-08-workoutpact-auth-payment-sharing-guards.md",
     DOCS_PLANS / "2026-06-08-workoutpact-logout-navigation-guard.md",
     DOCS_PLANS / "2026-06-08-workoutpact-payment-button-guard.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-payment-input-guard.md",
 ]
 
 
@@ -194,8 +195,11 @@ def main():
         failures,
     )
     require(
-        "paymentView == nil || paymentView!.card == nil" in payment,
-        "payment flow must guard missing PaymentKit card input before tokenization",
+        "paymentView!" not in payment
+        and "if let paymentInput = paymentView" in payment
+        and "paymentInput.card == nil" in payment
+        and "let paymentCard = paymentInput.card" in payment,
+        "payment flow must guard PaymentKit input without force-unwrapping paymentView",
         failures,
     )
     require(

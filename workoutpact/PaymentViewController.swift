@@ -39,35 +39,40 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
     }
 
     func createToken() {
-        if paymentView == nil || paymentView!.card == nil {
+        if let paymentInput = paymentView {
+            if paymentInput.card == nil {
+                NSLog("Payment card input is not ready for tokenization.")
+                return
+            }
+
+            let paymentCard = paymentInput.card
+            if let button = payButton {
+                button.enabled = false
+            }
+
+            let card = STPCard()
+            card.number = paymentCard.number
+            card.expMonth = paymentCard.expMonth
+            card.expYear = paymentCard.expYear
+            card.cvc = paymentCard.cvc
+
+            STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
+                dispatch_async(dispatch_get_main_queue(), {
+                    if let button = self.payButton {
+                        button.enabled = true
+                    }
+                    if error != nil || token == nil {
+                        NSLog("Stripe tokenization failed: \(error)")
+                        return
+                    }
+
+                    self.handleToken(token);
+                })
+            })
+        } else {
             NSLog("Payment card input is not ready for tokenization.")
             return
         }
-
-        let paymentCard = paymentView!.card
-        if let button = payButton {
-            button.enabled = false
-        }
-
-        let card = STPCard()
-        card.number = paymentCard.number
-        card.expMonth = paymentCard.expMonth
-        card.expYear = paymentCard.expYear
-        card.cvc = paymentCard.cvc
-
-        STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
-            dispatch_async(dispatch_get_main_queue(), {
-                if let button = self.payButton {
-                    button.enabled = true
-                }
-                if error != nil || token == nil {
-                    NSLog("Stripe tokenization failed: \(error)")
-                    return
-                }
-
-                self.handleToken(token);
-            })
-        })
 
     }
 
