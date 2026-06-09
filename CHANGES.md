@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Added docs-plan coverage for the WorkoutPact build/privacy and auth/payment
+  baselines to the static contract checker.
 - Restored the tracked app and test `Info.plist` files referenced by the Xcode project.
 - Replaced machine-local Xcode paths with repo-relative build settings.
 - Added static contracts for app metadata, privacy copy, social auth callbacks, and Stripe tokenization boundaries.

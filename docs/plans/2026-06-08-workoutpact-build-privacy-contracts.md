@@ -8,6 +8,8 @@ execution: code
 
 # WorkoutPact Build And Privacy Contract Hardening
 
+Status: Completed
+
 ## Problem Frame
 
 The Xcode project references `workoutpact/Info.plist`, but the file is missing from the repository. It also configures the Swift bridging header with an absolute path from the original author's machine. Those two issues make the project non-portable and leave authentication/payment/privacy metadata without a tracked contract.

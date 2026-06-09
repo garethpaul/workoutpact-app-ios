@@ -8,6 +8,11 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DOCS_PLANS = ROOT / "docs/plans"
+CANONICAL_PLANS = [
+    DOCS_PLANS / "2026-06-08-workoutpact-build-privacy-contracts.md",
+    DOCS_PLANS / "2026-06-08-workoutpact-auth-payment-sharing-guards.md",
+]
 
 
 def read_text(relative_path):
@@ -53,6 +58,7 @@ def main():
     payment = read_text("workoutpact/PaymentViewController.swift")
     shake = read_text("workoutpact/ShakeViewContorller.swift")
     workout = read_text("workoutpact/ViewController.swift")
+    plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.is_dir() else []
 
     required_app_keys = [
         "CFBundleDisplayName",
@@ -209,6 +215,19 @@ def main():
         "keyboard animation state must not use an implicitly unwrapped height",
         failures,
     )
+    require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)
+    require(plans, "docs/plans must contain completed maintenance plans", failures)
+    for plan in CANONICAL_PLANS:
+        require(plan in plans, f"{plan.relative_to(ROOT)} must be present", failures)
+
+    for plan in plans:
+        text = plan.read_text(encoding="utf-8")
+        require(
+            "status: completed" in text.lower() or "Status: Completed" in text,
+            f"{plan.relative_to(ROOT)} must be completed",
+            failures,
+        )
+        require("make check" in text, f"{plan.relative_to(ROOT)} must document make check verification", failures)
 
     if failures:
         print("WorkoutPact contract check failed:")
