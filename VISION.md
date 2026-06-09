@@ -19,6 +19,7 @@ Priority:
 - Keep API keys and payment credentials out of source control
 - Keep payment UI state guarded while tokenization is in flight
 - Keep PaymentKit input guarded before tokenization
+- Keep storyboard navigation casts guarded
 - Treat Fabric/Digits/TwitterKit and Swift versions as legacy
 - Avoid implying real charges or workout enforcement without backend contracts
 

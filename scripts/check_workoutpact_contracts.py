@@ -15,6 +15,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-08-workoutpact-logout-navigation-guard.md",
     DOCS_PLANS / "2026-06-08-workoutpact-payment-button-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-payment-input-guard.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-storyboard-cast-guards.md",
 ]
 
 
@@ -171,6 +172,12 @@ def main():
         failures,
     )
     require(
+        "as! TwoFactorViewController" not in login
+        and "as? TwoFactorViewController" in login,
+        "Twitter login must safely cast the phone verification controller",
+        failures,
+    )
+    require(
         "error != nil || session == nil" in two_factor,
         "Digits verification must not advance to protected content on cancelled or failed verification",
         failures,
@@ -233,6 +240,12 @@ def main():
     require(
         "if let storyboard = self.storyboard" in workout and "self.storyboard!" not in workout,
         "logout navigation must guard storyboard lookup before presenting login",
+        failures,
+    )
+    require(
+        "as! LoginViewController" not in workout
+        and "as? LoginViewController" in workout,
+        "logout navigation must safely cast the login controller",
         failures,
     )
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)

@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Replaced forced storyboard controller casts in login and logout navigation
+  with guarded casts.
+- Added static checker coverage for storyboard cast guards.
 - Guarded PaymentKit input access throughout token creation instead of
   force-unwrapping `paymentView`.
 - Added static checker coverage for the payment input guard.
