@@ -22,6 +22,7 @@ Priority:
 - Keep Stripe tokenization disabled until a local publishable key is configured
 - Keep payment failure logs non-sensitive
 - Keep storyboard navigation casts guarded
+- Guard protected-screen outlets before setup work
 - Treat Fabric/Digits/TwitterKit and Swift versions as legacy
 - Avoid implying real charges or workout enforcement without backend contracts
 

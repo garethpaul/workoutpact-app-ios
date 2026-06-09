@@ -35,7 +35,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        textField.delegate = self
+        if let workoutTextField = textField {
+            workoutTextField.delegate = self
+        }
         logoView = UIImageView(frame: CGRectMake(0, 0, 40, 40))
         logoView.image = UIImage(named: "workoutLogo")?.imageWithRenderingMode(.AlwaysTemplate)
         logoView.tintColor = toColor("#476098")

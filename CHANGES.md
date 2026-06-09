@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Guarded the protected screen text-field outlet before assigning its delegate.
+- Added static checker coverage for the text-field outlet guard.
 - Replaced raw Stripe tokenization error interpolation with a non-sensitive log
   message.
 - Added static checker coverage for payment failure logging.

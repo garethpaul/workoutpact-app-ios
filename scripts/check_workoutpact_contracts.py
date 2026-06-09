@@ -18,6 +18,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-storyboard-cast-guards.md",
     DOCS_PLANS / "2026-06-09-workoutpact-payment-error-log.md",
     DOCS_PLANS / "2026-06-09-workoutpact-payment-key-guard.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-textfield-outlet-guard.md",
 ]
 
 
@@ -261,6 +262,13 @@ def main():
     require(
         "var kbHeight: CGFloat = 0" in workout,
         "keyboard animation state must not use an implicitly unwrapped height",
+        failures,
+    )
+    require(
+        "if let workoutTextField = textField" in workout
+        and "workoutTextField.delegate = self" in workout
+        and "textField.delegate = self" not in workout,
+        "protected screen must guard the text-field outlet before assigning its delegate",
         failures,
     )
     require(
