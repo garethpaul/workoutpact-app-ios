@@ -56,8 +56,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
-  payment input, payment-button, payment-error logging, and storyboard
-  navigation static contracts
+  payment input, payment-button, payment-key, payment-error logging, and
+  storyboard navigation static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
@@ -98,6 +98,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   storyboard controller casts in login and logout navigation.
 - See `docs/plans/2026-06-09-workoutpact-payment-error-log.md` for
   non-sensitive Stripe tokenization failure logging.
+- See `docs/plans/2026-06-09-workoutpact-payment-key-guard.md` for stopping
+  tokenization when no local Stripe publishable key is configured.
 
 ## Contributing
 

@@ -5,6 +5,9 @@
 - Replaced raw Stripe tokenization error interpolation with a non-sensitive log
   message.
 - Added static checker coverage for payment failure logging.
+- Stopped payment tokenization when no local Stripe publishable key is
+  configured.
+- Added static checker coverage for the payment publishable-key guard.
 - Replaced forced storyboard controller casts in login and logout navigation
   with guarded casts.
 - Added static checker coverage for storyboard cast guards.

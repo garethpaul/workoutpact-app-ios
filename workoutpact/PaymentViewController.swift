@@ -45,6 +45,11 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
                 return
             }
 
+            if configuredStripePublishableKey() == nil {
+                NSLog("Stripe publishable key is not configured; payment tokenization is disabled.")
+                return
+            }
+
             let paymentCard = paymentInput.card
             if let button = payButton {
                 button.enabled = false

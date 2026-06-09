@@ -17,6 +17,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-payment-input-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-storyboard-cast-guards.md",
     DOCS_PLANS / "2026-06-09-workoutpact-payment-error-log.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-payment-key-guard.md",
 ]
 
 
@@ -208,6 +209,23 @@ def main():
         and "paymentInput.card == nil" in payment
         and "let paymentCard = paymentInput.card" in payment,
         "payment flow must guard PaymentKit input without force-unwrapping paymentView",
+        failures,
+    )
+    require(
+        "configuredStripePublishableKey() == nil" in payment,
+        "payment flow must stop before tokenization when Stripe publishable key is missing",
+        failures,
+    )
+    require(
+        'NSLog("Stripe publishable key is not configured; payment tokenization is disabled.")' in payment,
+        "payment flow must log a non-sensitive missing Stripe key message",
+        failures,
+    )
+    require(
+        "configuredStripePublishableKey() == nil" in payment
+        and payment.index("configuredStripePublishableKey() == nil")
+        < payment.index("STPAPIClient.sharedClient().createTokenWithCard"),
+        "Stripe publishable key guard must run before token creation",
         failures,
     )
     require(
