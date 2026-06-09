@@ -35,14 +35,16 @@ class ShakeViewController: UIViewController {
 
 
     override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent) {
-        if(event.subtype == UIEventSubtype.MotionShake) {
-            let alert = UIAlertController(title: "Share workout", message: "Post your completed workout to Twitter?", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
-            alert.addAction(UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-                self.presentTweetComposer()
-            }))
-            self.presentViewController(alert, animated: true, completion: nil)
+        if motion != UIEventSubtype.MotionShake {
+            return
         }
+
+        let alert = UIAlertController(title: "Share workout", message: "Post your completed workout to Twitter?", preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
+            self.presentTweetComposer()
+        }))
+        self.presentViewController(alert, animated: true, completion: nil)
     }
 
     func presentTweetComposer() {

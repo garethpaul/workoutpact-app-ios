@@ -22,6 +22,7 @@ Priority:
 - Keep Stripe tokenization disabled until a local publishable key is configured
 - Keep payment failure logs non-sensitive
 - Keep social-share result logs out of the prototype
+- Gate shake-to-share prompts on the delivered motion subtype
 - Keep storyboard navigation casts guarded
 - Guard protected-screen outlets before setup work
 - Keep protected-screen keyboard movement bounded to one active shift
@@ -41,6 +42,7 @@ Contribution rules:
 - Do not commit payment credentials, card data, or tokens.
 - Keep real charges disabled unless a backend and tests exist.
 - Include device verification notes for motion and sharing behavior.
+- Keep shake-to-share prompts tied to explicit shake-motion callbacks.
 
 ## Security And Responsible Use
 

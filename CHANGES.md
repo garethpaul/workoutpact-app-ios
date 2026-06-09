@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Gated the shake-to-share prompt on the delivered motion subtype instead of
+  reading the event subtype.
+- Added static checker coverage for the shake motion-subtype guard.
 - Guarded protected-screen keyboard movement so duplicate show/hide
   notifications cannot repeatedly offset the view.
 - Added static checker coverage for keyboard-shift state.

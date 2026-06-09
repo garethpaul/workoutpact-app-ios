@@ -21,6 +21,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-textfield-outlet-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-share-result-log.md",
     DOCS_PLANS / "2026-06-09-workoutpact-keyboard-shift-guard.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-shake-motion-subtype-guard.md",
 ]
 
 
@@ -259,6 +260,13 @@ def main():
         and "Just finished my workout via #workoutpact" in shake
         and "Just finshed" not in shake,
         "shake sharing must require explicit confirmation and use the corrected share text",
+        failures,
+    )
+    require(
+        "if motion != UIEventSubtype.MotionShake" in shake
+        and "event.subtype" not in shake
+        and shake.index("if motion != UIEventSubtype.MotionShake") < shake.index("let alert = UIAlertController"),
+        "shake sharing must use the delivered motion subtype before presenting confirmation",
         failures,
     )
     require(

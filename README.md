@@ -57,8 +57,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, and
-  social-share result logging, storyboard navigation, and protected-screen
-  outlet and keyboard-shift static contracts
+  social-share result logging and motion-subtype, storyboard navigation, and
+  protected-screen outlet and keyboard-shift static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
@@ -71,6 +71,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `workoutpact/Info.plist` contains placeholder URL scheme metadata only. Replace placeholder Twitter/Digits/Fabric values locally when running the legacy prototype, and do not commit real credentials.
 - `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure a real `pk_` publishable key locally and keep billing disabled unless a backend contract and tests exist.
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
+- The shake-to-share flow should gate on the delivered motion subtype before
+  presenting the confirmation prompt.
 
 ## Security and Privacy Notes
 
@@ -107,6 +109,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   protected screen keyboard animation state guard.
 - See `docs/plans/2026-06-09-workoutpact-share-result-log.md` for keeping
   Twitter composer outcomes out of console logs.
+- See `docs/plans/2026-06-09-workoutpact-shake-motion-subtype-guard.md` for
+  using the delivered motion subtype before prompting to share.
 
 ## Contributing
 
