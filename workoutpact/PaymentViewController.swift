@@ -25,13 +25,17 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         }
 
         payButton = UIBarButtonItem(title: "Submit", style: UIBarButtonItemStyle.Plain, target: self, action: "createToken")
-        payButton!.enabled = false
+        if let button = payButton {
+            button.enabled = false
+        }
         navigationItem.rightBarButtonItem = payButton
 
     }
 
     func paymentView(paymentView: PTKView!, withCard card: PTKCard!, isValid valid: Bool) {
-        payButton!.enabled = valid
+        if let button = payButton {
+            button.enabled = valid
+        }
     }
 
     func createToken() {
@@ -41,7 +45,9 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         }
 
         let paymentCard = paymentView!.card
-        payButton!.enabled = false
+        if let button = payButton {
+            button.enabled = false
+        }
 
         let card = STPCard()
         card.number = paymentCard.number
@@ -51,7 +57,9 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
         STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
             dispatch_async(dispatch_get_main_queue(), {
-                self.payButton!.enabled = true
+                if let button = self.payButton {
+                    button.enabled = true
+                }
                 if error != nil || token == nil {
                     NSLog("Stripe tokenization failed: \(error)")
                     return

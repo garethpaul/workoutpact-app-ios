@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Guarded payment submit-button state updates instead of force-unwrapping the
+  optional `payButton`.
 - Guarded logout navigation before presenting the login controller.
 - Added docs-plan coverage for the WorkoutPact build/privacy and auth/payment
   baselines to the static contract checker.

@@ -17,6 +17,7 @@ Priority:
 
 - Preserve login, verification, payment-token, and shake-to-share screens
 - Keep API keys and payment credentials out of source control
+- Keep payment UI state guarded while tokenization is in flight
 - Treat Fabric/Digits/TwitterKit and Swift versions as legacy
 - Avoid implying real charges or workout enforcement without backend contracts
 
@@ -24,7 +25,7 @@ Next priorities:
 
 - Add README setup notes and archive status
 - Document payment-token flow and backend requirements
-- Add explicit confirmation before social sharing
+- Add user-visible payment-token failure guidance
 - Modernize SDKs only in a dedicated compatibility pass
 
 Contribution rules:

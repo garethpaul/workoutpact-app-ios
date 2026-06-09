@@ -13,6 +13,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-08-workoutpact-build-privacy-contracts.md",
     DOCS_PLANS / "2026-06-08-workoutpact-auth-payment-sharing-guards.md",
     DOCS_PLANS / "2026-06-08-workoutpact-logout-navigation-guard.md",
+    DOCS_PLANS / "2026-06-08-workoutpact-payment-button-guard.md",
 ]
 
 
@@ -179,8 +180,17 @@ def main():
         failures,
     )
     require(
-        "payButton!.enabled = false" in payment,
-        "payment submit button must start disabled until PaymentKit validates card input",
+        "payButton!.enabled" not in payment,
+        "payment button state updates must not force-unwrap payButton",
+        failures,
+    )
+    require(
+        "if let button = payButton" in payment
+        and "button.enabled = false" in payment
+        and "button.enabled = valid" in payment
+        and "if let button = self.payButton" in payment
+        and "button.enabled = true" in payment,
+        "payment submit button state must be guarded while preserving validation and token callback behavior",
         failures,
     )
     require(
