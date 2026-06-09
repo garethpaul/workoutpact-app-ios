@@ -20,6 +20,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-payment-key-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-textfield-outlet-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-share-result-log.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-keyboard-shift-guard.md",
 ]
 
 
@@ -270,6 +271,33 @@ def main():
     require(
         "var kbHeight: CGFloat = 0" in workout,
         "keyboard animation state must not use an implicitly unwrapped height",
+        failures,
+    )
+    require(
+        "var keyboardIsVisible = false" in workout,
+        "keyboard animation state must track whether the view is already shifted",
+        failures,
+    )
+    require(
+        "if keyboardIsVisible {\n            return\n        }" in workout,
+        "keyboardWillShow must ignore duplicate show notifications",
+        failures,
+    )
+    require(
+        "if !keyboardIsVisible {\n            return\n        }" in workout,
+        "keyboardWillHide must ignore hide notifications when the view is not shifted",
+        failures,
+    )
+    require(
+        "keyboardIsVisible = true" in workout
+        and workout.index("keyboardIsVisible = true") < workout.index("self.animateTextField(true)"),
+        "keyboardWillShow must mark the view shifted before animating upward",
+        failures,
+    )
+    require(
+        "keyboardIsVisible = false" in workout
+        and workout.index("keyboardIsVisible = false") < workout.index("self.animateTextField(false)"),
+        "keyboardWillHide must clear shifted state before animating downward",
         failures,
     )
     require(

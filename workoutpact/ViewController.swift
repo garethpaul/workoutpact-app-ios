@@ -12,6 +12,7 @@ import TwitterKit
 class ViewController: UIViewController, UITextFieldDelegate {
 
     var kbHeight: CGFloat = 0
+    var keyboardIsVisible = false
 
     @IBAction func logOut(sender: AnyObject) {
         Digits.sharedInstance().logOut()
@@ -80,13 +81,21 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
 
     func keyboardWillHide(notification: NSNotification) {
+        if !keyboardIsVisible {
+            return
+        }
+        keyboardIsVisible = false
         self.animateTextField(false)
     }
 
     func keyboardWillShow(notification: NSNotification) {
+        if keyboardIsVisible {
+            return
+        }
         if let userInfo = notification.userInfo {
             if let keyboardSize =  (userInfo[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue() {
                 kbHeight = keyboardSize.height
+                keyboardIsVisible = true
                 self.animateTextField(true)
             }
         }

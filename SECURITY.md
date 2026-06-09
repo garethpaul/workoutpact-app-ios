@@ -34,6 +34,8 @@ Helpful reports include:
 - Review found secret-like configuration names that require careful review before use; changes in those areas should receive security-focused review before merge.
 - Social sharing should remain explicit and should not log Twitter composer
   outcomes from the workout flow.
+- Protected-screen keyboard movement should ignore duplicate show/hide
+  notifications so sensitive UI does not drift off screen during text entry.
 - Dependency manifests detected: Podfile, Podfile.lock. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 
 ## Mobile Privacy Notes

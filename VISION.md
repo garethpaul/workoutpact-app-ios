@@ -24,6 +24,7 @@ Priority:
 - Keep social-share result logs out of the prototype
 - Keep storyboard navigation casts guarded
 - Guard protected-screen outlets before setup work
+- Keep protected-screen keyboard movement bounded to one active shift
 - Treat Fabric/Digits/TwitterKit and Swift versions as legacy
 - Avoid implying real charges or workout enforcement without backend contracts
 

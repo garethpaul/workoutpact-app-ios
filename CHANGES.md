@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Guarded protected-screen keyboard movement so duplicate show/hide
+  notifications cannot repeatedly offset the view.
+- Added static checker coverage for keyboard-shift state.
 - Guarded the protected screen text-field outlet before assigning its delegate.
 - Added static checker coverage for the text-field outlet guard.
 - Removed Twitter composer result logging from the shake-to-share flow.
