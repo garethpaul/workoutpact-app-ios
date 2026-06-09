@@ -16,6 +16,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-08-workoutpact-payment-button-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-payment-input-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-storyboard-cast-guards.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-payment-error-log.md",
 ]
 
 
@@ -212,6 +213,13 @@ def main():
     require(
         "error != nil || token == nil" in payment,
         "payment flow must not advance when Stripe tokenization fails",
+        failures,
+    )
+    require(
+        'NSLog("Stripe tokenization failed.")' in payment
+        and "Stripe tokenization failed: \\(error)" not in payment
+        and "\\(error)" not in payment,
+        "payment tokenization failures must not log raw Stripe error objects",
         failures,
     )
     require(

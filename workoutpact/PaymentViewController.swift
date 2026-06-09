@@ -62,7 +62,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
                         button.enabled = true
                     }
                     if error != nil || token == nil {
-                        NSLog("Stripe tokenization failed: \(error)")
+                        NSLog("Stripe tokenization failed.")
                         return
                     }
 

@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Replaced raw Stripe tokenization error interpolation with a non-sensitive log
+  message.
+- Added static checker coverage for payment failure logging.
 - Replaced forced storyboard controller casts in login and logout navigation
   with guarded casts.
 - Added static checker coverage for storyboard cast guards.
