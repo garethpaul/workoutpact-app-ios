@@ -52,12 +52,6 @@ class ShakeViewController: UIViewController {
         composer.setImage(UIImage(named: "workoutLogo"))
 
         composer.showWithCompletion { (result) -> Void in
-            if (result == TWTRComposerResult.Cancelled) {
-                println("Tweet composition cancelled")
-            }
-            else {
-                println("Sending tweet!")
-            }
         }
     }
 

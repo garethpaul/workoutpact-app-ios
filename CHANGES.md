@@ -4,6 +4,8 @@
 
 - Guarded the protected screen text-field outlet before assigning its delegate.
 - Added static checker coverage for the text-field outlet guard.
+- Removed Twitter composer result logging from the shake-to-share flow.
+- Added static checker coverage for social-share result logging.
 - Replaced raw Stripe tokenization error interpolation with a non-sensitive log
   message.
 - Added static checker coverage for payment failure logging.

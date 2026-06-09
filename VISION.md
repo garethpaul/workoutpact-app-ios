@@ -21,6 +21,7 @@ Priority:
 - Keep PaymentKit input guarded before tokenization
 - Keep Stripe tokenization disabled until a local publishable key is configured
 - Keep payment failure logs non-sensitive
+- Keep social-share result logs out of the prototype
 - Keep storyboard navigation casts guarded
 - Guard protected-screen outlets before setup work
 - Treat Fabric/Digits/TwitterKit and Swift versions as legacy
@@ -48,7 +49,8 @@ Canonical security policy and reporting:
 
 The app touches identity, payment cards, phone verification, and workout claims.
 It should never store raw card data, should keep sharing explicit, and should
-avoid collecting health or behavior data without a privacy model.
+avoid logging social-share outcomes or collecting health or behavior data
+without a privacy model.
 
 ## What We Will Not Merge (For Now)
 

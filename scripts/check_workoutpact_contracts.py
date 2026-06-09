@@ -19,6 +19,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-payment-error-log.md",
     DOCS_PLANS / "2026-06-09-workoutpact-payment-key-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-textfield-outlet-guard.md",
+    DOCS_PLANS / "2026-06-09-workoutpact-share-result-log.md",
 ]
 
 
@@ -257,6 +258,13 @@ def main():
         and "Just finished my workout via #workoutpact" in shake
         and "Just finshed" not in shake,
         "shake sharing must require explicit confirmation and use the corrected share text",
+        failures,
+    )
+    require(
+        "println(" not in shake
+        and "Tweet composition cancelled" not in shake
+        and "Sending tweet!" not in shake,
+        "shake sharing must not log Twitter composer outcomes",
         failures,
     )
     require(
