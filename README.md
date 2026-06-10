@@ -56,12 +56,14 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14
-  with read-only permissions and manual dispatch; Linux runners intentionally
-  skip the Xcode build pending the Swift and retired-SDK migration.
+  on fixed Ubuntu 24.04 runners with read-only permissions, superseded-run
+  cancellation, and manual dispatch; Linux runners intentionally skip the
+  Xcode build pending the Swift and retired-SDK migration.
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, and
-  social-share result logging and motion-subtype, storyboard navigation, and
-  protected-screen outlet and keyboard-shift static contracts
+  no-backend billing disclosure, social-share result logging and motion-subtype,
+  storyboard navigation, and protected-screen outlet and keyboard-shift static
+  contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
@@ -73,6 +75,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 - `workoutpact/Info.plist` contains placeholder URL scheme metadata only. Replace placeholder Twitter/Digits/Fabric values locally when running the legacy prototype, and do not commit real credentials.
 - `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure a real `pk_` publishable key locally and keep billing disabled unless a backend contract and tests exist.
+- Successful tokenization must disclose that no donation or charge exists and
+  require explicit continuation without billing.
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 - The shake-to-share flow should gate on the delivered motion subtype before
   presenting the confirmation prompt.
@@ -116,6 +120,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   using the delivered motion subtype before prompting to share.
 - See `docs/plans/2026-06-10-workoutpact-hosted-static-verification.md` for
   the pinned, least-privilege hosted contract baseline.
+- See `docs/plans/2026-06-10-workoutpact-no-backend-billing-notice.md` for the
+  explicit no-charge disclosure and root-independent verification contract.
 
 ## Contributing
 

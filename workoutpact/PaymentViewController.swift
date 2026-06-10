@@ -87,8 +87,15 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
             return
         }
 
-        // Send token to a backend only after a real billing flow exists.
-        self.performSegueWithIdentifier("shake", sender: self)
+        let alert = UIAlertController(
+            title: "Billing unavailable",
+            message: "Your card was tokenized, but no donation or charge was created.",
+            preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Continue without billing", style: UIAlertActionStyle.Default, handler: { action in
+            self.performSegueWithIdentifier("shake", sender: self)
+        }))
+        self.presentViewController(alert, animated: true, completion: nil)
 
     }
 

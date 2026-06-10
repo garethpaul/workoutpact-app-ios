@@ -23,8 +23,10 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-keyboard-shift-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-shake-motion-subtype-guard.md",
     DOCS_PLANS / "2026-06-10-workoutpact-hosted-static-verification.md",
+    DOCS_PLANS / "2026-06-10-workoutpact-no-backend-billing-notice.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
+MAKEFILE = ROOT / "Makefile"
 
 
 def read_text(relative_path):
@@ -257,6 +259,32 @@ def main():
         "payment comments must not imply the prototype creates charges",
         failures,
     )
+    token_handler = payment.split("func handleToken", 1)[1]
+    require(
+        'title: "Billing unavailable"' in token_handler,
+        "successful tokenization must disclose that billing is unavailable",
+        failures,
+    )
+    require(
+        'message: "Your card was tokenized, but no donation or charge was created."'
+        in token_handler,
+        "successful tokenization must not imply a donation or charge was created",
+        failures,
+    )
+    require(
+        'title: "Continue without billing"' in token_handler,
+        "payment continuation must explicitly state that billing is disabled",
+        failures,
+    )
+    require(
+        'self.presentViewController(alert, animated: true, completion: nil)' in token_handler
+        and 'self.performSegueWithIdentifier("shake", sender: self)' in token_handler
+        and token_handler.index('title: "Continue without billing"')
+        < token_handler.index('self.performSegueWithIdentifier("shake", sender: self)')
+        < token_handler.index('self.presentViewController(alert, animated: true, completion: nil)'),
+        "payment segue must be scoped to the explicit no-billing continuation action",
+        failures,
+    )
     require(
         "UIAlertController" in shake
         and "presentTweetComposer" in shake
@@ -357,6 +385,39 @@ def main():
     )
     require("timeout-minutes: 5" in workflow, "hosted verification must have a timeout", failures)
     require("run: make check" in workflow, "hosted verification must run make check", failures)
+    require("concurrency:" in workflow, "hosted verification must define concurrency", failures)
+    require(
+        "cancel-in-progress: true" in workflow,
+        "hosted verification must cancel superseded runs",
+        failures,
+    )
+    require(
+        "runs-on: ubuntu-24.04" in workflow,
+        "hosted verification must use a fixed Ubuntu runner",
+        failures,
+    )
+    require("ubuntu-latest" not in workflow, "hosted verification must not use a floating runner", failures)
+    makefile = MAKEFILE.read_text(encoding="utf-8")
+    require(
+        "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))" in makefile,
+        "Makefile must resolve the repository root",
+        failures,
+    )
+    require(
+        "CHECK_SCRIPT := $(ROOT)/scripts/check_workoutpact_contracts.py" in makefile,
+        "Makefile must use the rooted checker path",
+        failures,
+    )
+    require(
+        "WORKSPACE := $(ROOT)/workoutpact.xcworkspace" in makefile,
+        "Makefile must resolve the Xcode workspace from the repository root",
+        failures,
+    )
+    require(
+        '-workspace "$(WORKSPACE)"' in makefile,
+        "Xcode build must use the rooted workspace path",
+        failures,
+    )
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)
     require(plans, "docs/plans must contain completed maintenance plans", failures)
     for plan in CANONICAL_PLANS:

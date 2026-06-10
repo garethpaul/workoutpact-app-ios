@@ -8,6 +8,10 @@
 - Added static protection for workflow permissions, action revisions, matrix
   versions, timeout, and the `make check` entry point.
 - Documented that hosted Linux checks intentionally skip the legacy Xcode build.
+- Added an explicit post-tokenization notice that no donation or charge was
+  created and requires `Continue without billing` before sharing.
+- Pinned hosted verification to Ubuntu 24.04 with superseded-run cancellation
+  and made static and optional workspace checks root-independent.
 
 ## 2026-06-09
 

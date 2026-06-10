@@ -36,6 +36,8 @@ Helpful reports include:
   outcomes from the workout flow.
 - Protected-screen keyboard movement should ignore duplicate show/hide
   notifications so sensitive UI does not drift off screen during text entry.
+- Stripe tokenization does not create a donation or charge in this prototype.
+  The UI must disclose that boundary before continuing to workout sharing.
 - Dependency manifests detected: Podfile, Podfile.lock. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 
 ## Mobile Privacy Notes

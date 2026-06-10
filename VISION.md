@@ -21,6 +21,7 @@ Priority:
 - Keep PaymentKit input guarded before tokenization
 - Keep Stripe tokenization disabled until a local publishable key is configured
 - Keep payment failure logs non-sensitive
+- Require explicit disclosure that tokenization creates no donation or charge
 - Keep social-share result logs out of the prototype
 - Gate shake-to-share prompts on the delivered motion subtype
 - Keep storyboard navigation casts guarded
@@ -34,7 +35,7 @@ Next priorities:
 
 - Add README setup notes and archive status
 - Document payment-token flow and backend requirements
-- Add user-visible payment-token failure guidance
+- Add a real backend contract and tests before enabling billing
 - Modernize SDKs only in a dedicated compatibility pass
 
 Contribution rules:
