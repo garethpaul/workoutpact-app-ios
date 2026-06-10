@@ -22,7 +22,9 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-share-result-log.md",
     DOCS_PLANS / "2026-06-09-workoutpact-keyboard-shift-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-shake-motion-subtype-guard.md",
+    DOCS_PLANS / "2026-06-10-workoutpact-hosted-static-verification.md",
 ]
+WORKFLOW = ROOT / ".github/workflows/check.yml"
 
 
 def read_text(relative_path):
@@ -68,6 +70,7 @@ def main():
     payment = read_text("workoutpact/PaymentViewController.swift")
     shake = read_text("workoutpact/ShakeViewContorller.swift")
     workout = read_text("workoutpact/ViewController.swift")
+    workflow = read_text(".github/workflows/check.yml") if WORKFLOW.is_file() else ""
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.is_dir() else []
 
     required_app_keys = [
@@ -326,6 +329,29 @@ def main():
         "logout navigation must safely cast the login controller",
         failures,
     )
+    require(WORKFLOW.is_file(), "hosted verification workflow must exist", failures)
+    require(
+        "permissions:\n  contents: read" in workflow,
+        "hosted verification permissions must be read-only",
+        failures,
+    )
+    require(
+        "python-version: ['3.10', '3.12']" in workflow,
+        "hosted verification must cover Python 3.10 and 3.12",
+        failures,
+    )
+    require(
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" in workflow,
+        "checkout must use an immutable revision",
+        failures,
+    )
+    require(
+        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405" in workflow,
+        "setup-python must use an immutable revision",
+        failures,
+    )
+    require("timeout-minutes: 5" in workflow, "hosted verification must have a timeout", failures)
+    require("run: make check" in workflow, "hosted verification must run make check", failures)
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)
     require(plans, "docs/plans must contain completed maintenance plans", failures)
     for plan in CANONICAL_PLANS:

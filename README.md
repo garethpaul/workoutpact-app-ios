@@ -60,6 +60,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
+- GitHub Actions runs the same portable gate on Python 3.10 and 3.12 with
+  read-only permissions; Linux runners intentionally skip the Xcode build.
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, and
   social-share result logging and motion-subtype, storyboard navigation, and
@@ -116,6 +118,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Twitter composer outcomes out of console logs.
 - See `docs/plans/2026-06-09-workoutpact-shake-motion-subtype-guard.md` for
   using the delivered motion subtype before prompting to share.
+- See `docs/plans/2026-06-10-workoutpact-hosted-static-verification.md` for
+  the pinned, least-privilege hosted contract baseline.
 
 ## Contributing
 
