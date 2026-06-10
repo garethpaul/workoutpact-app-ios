@@ -27,6 +27,7 @@ Priority:
 - Keep storyboard navigation casts guarded
 - Guard protected-screen outlets before setup work
 - Keep protected-screen keyboard movement bounded to one active shift
+- Restore protected-screen keyboard offsets before the view leaves the screen
 - Treat Fabric/Digits/TwitterKit and Swift versions as legacy
 - Avoid implying real charges or workout enforcement without backend contracts
 - Keep portable credential, payment, and sharing contracts running in hosted CI

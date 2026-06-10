@@ -55,6 +55,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
+- Protected-screen contracts require any active keyboard offset to be restored
+  before navigation removes keyboard observers.
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14
   on fixed Ubuntu 24.04 runners with read-only permissions, superseded-run
   cancellation, and manual dispatch; Linux runners intentionally skip the
@@ -122,6 +124,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   the pinned, least-privilege hosted contract baseline.
 - See `docs/plans/2026-06-10-workoutpact-no-backend-billing-notice.md` for the
   explicit no-charge disclosure and root-independent verification contract.
+- See `docs/plans/2026-06-10-workoutpact-keyboard-lifecycle-reset.md` for
+  protected-screen keyboard restoration during navigation.
 
 ## Contributing
 

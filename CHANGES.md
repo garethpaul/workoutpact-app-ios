@@ -2,6 +2,9 @@
 
 ## 2026-06-10
 
+- Restored any active protected-screen keyboard offset before navigation
+  removes observers, clearing stale visibility and height state for the next
+  appearance.
 - Added immutable, read-only GitHub Actions verification on Python 3.10, 3.12,
   and 3.14 for the credential, payment, authentication, and sharing contracts,
   with manual dispatch for maintenance runs.

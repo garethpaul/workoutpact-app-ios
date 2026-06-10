@@ -24,6 +24,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-shake-motion-subtype-guard.md",
     DOCS_PLANS / "2026-06-10-workoutpact-hosted-static-verification.md",
     DOCS_PLANS / "2026-06-10-workoutpact-no-backend-billing-notice.md",
+    DOCS_PLANS / "2026-06-10-workoutpact-keyboard-lifecycle-reset.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -325,6 +326,46 @@ def main():
     require(
         "if !keyboardIsVisible {\n            return\n        }" in workout,
         "keyboardWillHide must ignore hide notifications when the view is not shifted",
+        failures,
+    )
+    has_restore_method = "func restoreKeyboardShiftIfNeeded()" in workout
+    require(
+        has_restore_method,
+        "protected screen must centralize keyboard-shift restoration",
+        failures,
+    )
+    restore_method = ""
+    if has_restore_method:
+        restore_method = workout.split("func restoreKeyboardShiftIfNeeded()", 1)[1].split(
+            "func textFieldShouldReturn", 1
+        )[0]
+    require(
+        "if !keyboardIsVisible {\n            return\n        }" in restore_method,
+        "keyboard restoration must be idempotent when the view is not shifted",
+        failures,
+    )
+    require(
+        "keyboardIsVisible = false" in restore_method
+        and "self.view.frame = CGRectOffset(self.view.frame, 0, kbHeight)" in restore_method
+        and "kbHeight = 0" in restore_method,
+        "keyboard restoration must reset state, frame offset, and cached height",
+        failures,
+    )
+    disappearance_method = workout.split("override func viewWillDisappear", 1)[1].split(
+        "func restoreKeyboardShiftIfNeeded()", 1
+    )[0]
+    restores_keyboard_shift = "restoreKeyboardShiftIfNeeded()" in disappearance_method
+    require(
+        restores_keyboard_shift,
+        "view disappearance must restore any active keyboard shift",
+        failures,
+    )
+    require(
+        restores_keyboard_shift
+        and "removeObserver(self)" in disappearance_method
+        and disappearance_method.index("restoreKeyboardShiftIfNeeded()")
+        < disappearance_method.index("removeObserver(self)"),
+        "keyboard shift must be restored before keyboard observers are removed",
         failures,
     )
     require(

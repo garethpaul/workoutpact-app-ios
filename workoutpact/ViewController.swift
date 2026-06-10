@@ -71,7 +71,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
 
+        restoreKeyboardShiftIfNeeded()
         NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+
+    func restoreKeyboardShiftIfNeeded() {
+        if !keyboardIsVisible {
+            return
+        }
+
+        keyboardIsVisible = false
+        self.view.frame = CGRectOffset(self.view.frame, 0, kbHeight)
+        kbHeight = 0
     }
 
     func textFieldShouldReturn(textField: UITextField) -> Bool {
