@@ -28,3 +28,7 @@ not describe the static Linux gate as a current-SDK build.
 - Hostile Stripe-version, deployment-target, and documentation-baseline
   mutations were rejected by the contract checker.
 - `git diff --check` passed.
+
+After changing this boundary or any referenced dependency, rerun `make check`
+and complete Xcode/device verification on a compatible macOS host before
+release.
