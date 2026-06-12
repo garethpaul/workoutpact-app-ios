@@ -1,6 +1,6 @@
 # WorkoutPact legacy SDK modernization boundary
 
-status: planned
+status: completed
 
 ## Current boundary
 
@@ -22,5 +22,9 @@ not describe the static Linux gate as a current-SDK build.
 
 ## Verification
 
-Run `make check` after changing this boundary or any referenced dependency and
-complete Xcode/device verification on a compatible macOS host before release.
+- `python3 -m py_compile scripts/check_workoutpact_contracts.py` passed.
+- `make check` passed the portable contracts and explicitly reported that
+  `xcodebuild` was unavailable on this Linux host.
+- Hostile Stripe-version, deployment-target, and documentation-baseline
+  mutations were rejected by the contract checker.
+- `git diff --check` passed.

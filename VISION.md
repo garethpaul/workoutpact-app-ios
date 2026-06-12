@@ -39,6 +39,12 @@ Next priorities:
 - Add a real backend contract and tests before enabling billing
 - Modernize SDKs only in a dedicated compatibility pass
 
+The modernization boundary is version-specific: Swift 1-era syntax, iOS 8.3,
+Stripe 4.0.3, PaymentKit 1.1.1, and retired Fabric, DigitsKit, TwitterCore, and
+TwitterKit components must be replaced in staged authentication, payment,
+language, and device-verification passes rather than through a bulk project
+upgrade.
+
 Contribution rules:
 
 - One PR = one focused auth, payment, sharing, UI, or documentation change.
