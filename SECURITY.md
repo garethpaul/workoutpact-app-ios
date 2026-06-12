@@ -24,6 +24,13 @@ Helpful reports include:
 
 ## Project Security Posture
 
+The archival project retains Stripe 4.0.3, PaymentKit 1.1.1, and retired
+Fabric, DigitsKit, TwitterCore, and TwitterKit binaries on an iOS 8.3 baseline.
+Passing static contracts does not make those dependencies safe on a current
+SDK. Do not use real identity, phone, card, or social-account data until the
+authentication and payment stacks have been replaced and verified on supported
+devices.
+
 - This repository appears to be an Apple platform application or Swift sample. The active security scope is the code and documentation on the default branch.
 - Review found authentication, token, or session-related code paths; changes in those areas should receive security-focused review before merge.
 - Review found external API integrations or credential-adjacent configuration; changes in those areas should receive security-focused review before merge.

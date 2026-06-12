@@ -23,6 +23,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-09-workoutpact-keyboard-shift-guard.md",
     DOCS_PLANS / "2026-06-09-workoutpact-shake-motion-subtype-guard.md",
     DOCS_PLANS / "2026-06-10-workoutpact-hosted-static-verification.md",
+    DOCS_PLANS / "2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 
@@ -70,6 +71,11 @@ def main():
     payment = read_text("workoutpact/PaymentViewController.swift")
     shake = read_text("workoutpact/ShakeViewContorller.swift")
     workout = read_text("workoutpact/ViewController.swift")
+    podfile_lock = read_text("Podfile.lock")
+    readme = read_text("README.md")
+    security = read_text("SECURITY.md")
+    vision = read_text("VISION.md")
+    changes = read_text("CHANGES.md")
     workflow = read_text(".github/workflows/check.yml") if WORKFLOW.is_file() else ""
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.is_dir() else []
 
@@ -329,6 +335,50 @@ def main():
         "logout navigation must safely cast the login controller",
         failures,
     )
+    require(
+        project.count("IPHONEOS_DEPLOYMENT_TARGET = 8.3;") >= 2,
+        "project must retain the documented iOS 8.3 archival deployment target",
+        failures,
+    )
+    require(
+        "PaymentKit (1.1.1)" in podfile_lock and "Stripe (4.0.3)" in podfile_lock,
+        "Podfile.lock must match the documented PaymentKit 1.1.1 and Stripe 4.0.3 boundary",
+        failures,
+    )
+    retired_frameworks = [
+        "Fabric.framework",
+        "DigitsKit.framework",
+        "TwitterCore.framework",
+        "TwitterKit.framework",
+    ]
+    missing_frameworks = [name for name in retired_frameworks if not (ROOT / name).is_dir()]
+    require(
+        not missing_frameworks,
+        "documented retired frameworks are missing: " + ", ".join(missing_frameworks),
+        failures,
+    )
+    boundary_terms = [
+        "iOS 8.3",
+        "Stripe 4.0.3",
+        "PaymentKit 1.1.1",
+        "Fabric",
+        "DigitsKit",
+        "TwitterCore",
+        "TwitterKit",
+    ]
+    for document_name, document in [
+        ("README.md", readme),
+        ("SECURITY.md", security),
+        ("VISION.md", vision),
+        ("CHANGES.md", changes),
+    ]:
+        missing_terms = [term for term in boundary_terms if term not in document]
+        require(
+            not missing_terms,
+            f"{document_name} must document the legacy SDK boundary: "
+            + ", ".join(missing_terms),
+            failures,
+        )
     require(WORKFLOW.is_file(), "hosted verification workflow must exist", failures)
     require(
         "permissions:\n  contents: read" in workflow,

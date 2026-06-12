@@ -2,6 +2,9 @@
 
 ## 2026-06-10
 
+- Documented and enforced the versioned legacy SDK modernization boundary for
+  Swift 1-era syntax, iOS 8.3, Stripe 4.0.3, PaymentKit 1.1.1, and retired
+  Fabric, DigitsKit, TwitterCore, and TwitterKit SDKs.
 - Added immutable, read-only GitHub Actions verification on Python 3.10 and
   3.12 for the credential, payment, authentication, and sharing contracts.
 - Added static protection for workflow permissions, action revisions, matrix

@@ -59,6 +59,13 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
+This is an archival Swift 1-era project targeting iOS 8.3. Its lockfile retains
+Stripe 4.0.3 and PaymentKit 1.1.1, and it vendors retired Fabric, DigitsKit,
+TwitterCore, and TwitterKit binaries. It is not expected to build unchanged
+with a current iOS SDK. Follow the staged dependency, payment, Swift, and device
+verification sequence in
+`docs/plans/2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md`.
+
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - GitHub Actions runs the same portable gate on Python 3.10 and 3.12 with
   read-only permissions; Linux runners intentionally skip the Xcode build.
