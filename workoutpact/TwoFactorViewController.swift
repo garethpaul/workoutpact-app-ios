@@ -13,6 +13,7 @@ import DigitsKit
 class TwoFactorViewController: UIViewController {
 
     var authenticationContextActive = false
+    var authenticationGeneration = 0
 
     @IBAction func enableTwoFactor(sender: AnyObject) {
         twoFactor()
@@ -31,6 +32,7 @@ class TwoFactorViewController: UIViewController {
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         if self.isBeingDismissed() || self.isMovingFromParentViewController() {
+            authenticationGeneration += 1
             authenticationContextActive = false
         }
     }
@@ -49,6 +51,7 @@ class TwoFactorViewController: UIViewController {
 
         // Start the authentication flow with the custom appearance. Nil parameters for default values.
         let digits = Digits.sharedInstance()
+        let authenticationRequestGeneration = authenticationGeneration
         digits.authenticateWithDigitsAppearance(digitsAppearance, viewController: nil, title: "Two Factor Authentication") { (session, error) in
             // Inspect session/error objects
             if error != nil || session == nil {
@@ -56,7 +59,7 @@ class TwoFactorViewController: UIViewController {
             }
 
             dispatch_async(dispatch_get_main_queue(), {
-                if !self.authenticationContextActive {
+                if authenticationRequestGeneration != self.authenticationGeneration || !self.authenticationContextActive {
                     return
                 }
 

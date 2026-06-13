@@ -28,6 +28,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md",
     DOCS_PLANS / "2026-06-13-workoutpact-stale-payment-callback.md",
     DOCS_PLANS / "2026-06-13-workoutpact-stale-digits-callback.md",
+    DOCS_PLANS / "2026-06-13-workoutpact-callback-generation-guards.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -217,7 +218,7 @@ def main():
         "override func viewWillDisappear", 1
     )[1].split("func twoFactor()", 1)[0]
     authentication_request_guard = "if !authenticationContextActive"
-    authentication_completion_guard = "if !self.authenticationContextActive"
+    authentication_completion_guard = "!self.authenticationContextActive"
     authentication_call = "digits.authenticateWithDigitsAppearance"
     protected_segue = 'self.performSegueWithIdentifier("protected", sender: self)'
     require(
@@ -245,6 +246,24 @@ def main():
         < authentication_request.index(authentication_completion_guard)
         < authentication_request.index(protected_segue),
         "stale Digits success callbacks must be rejected on the main queue before the protected segue",
+        failures,
+    )
+    require(
+        "var authenticationGeneration = 0" in two_factor
+        and "authenticationGeneration += 1" in authentication_disappearance
+        and authentication_disappearance.index("authenticationGeneration += 1")
+        < authentication_disappearance.index("authenticationContextActive = false"),
+        "two-factor dismissal must invalidate the prior authentication generation",
+        failures,
+    )
+    require(
+        "let authenticationRequestGeneration = authenticationGeneration" in authentication_request
+        and authentication_request.index("let authenticationRequestGeneration = authenticationGeneration")
+        < authentication_request.index(authentication_call)
+        and "authenticationRequestGeneration != self.authenticationGeneration" in authentication_request
+        and authentication_request.index("authenticationRequestGeneration != self.authenticationGeneration")
+        < authentication_request.index(protected_segue),
+        "Digits completion must reject requests from a prior controller generation",
         failures,
     )
     require(
@@ -313,7 +332,7 @@ def main():
         "func paymentView", 1
     )[0]
     lifecycle_guard = "if !paymentViewVisible"
-    completion_guard = "if !self.paymentViewVisible"
+    completion_guard = "!self.paymentViewVisible"
     require(
         "paymentViewVisible = true" in appearance_method
         and "paymentViewVisible = false" in disappearance_method,
@@ -333,6 +352,24 @@ def main():
         < payment_request.index(completion_guard)
         < payment_request.index("self.handleToken(token)"),
         "stale Stripe completions must be rejected before billing UI is handled",
+        failures,
+    )
+    require(
+        "var paymentGeneration = 0" in payment
+        and "paymentGeneration += 1" in disappearance_method
+        and disappearance_method.index("paymentGeneration += 1")
+        < disappearance_method.index("paymentViewVisible = false"),
+        "payment disappearance must invalidate the prior tokenization generation",
+        failures,
+    )
+    require(
+        "let paymentRequestGeneration = paymentGeneration" in payment_request
+        and payment_request.index("let paymentRequestGeneration = paymentGeneration")
+        < payment_request.index("STPAPIClient.sharedClient().createTokenWithCard")
+        and "paymentRequestGeneration != self.paymentGeneration" in payment_request
+        and payment_request.index("paymentRequestGeneration != self.paymentGeneration")
+        < payment_request.index("self.handleToken(token)"),
+        "Stripe completion must reject requests from a prior payment generation",
         failures,
     )
     require(

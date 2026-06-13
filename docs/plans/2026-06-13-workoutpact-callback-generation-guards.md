@@ -1,6 +1,6 @@
 # WorkoutPact Callback Generation Guards
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -36,3 +36,10 @@ present billing UI or navigate to protected content in the wrong lifecycle.
 - Do not modernize Swift, update vendored SDKs, change billing behavior, or
   alter storyboard/project metadata.
 - Do not merge or close any pull request without explicit owner authorization.
+
+## Verification Results
+
+- The portable checker accepted both generation guards and their ordering, then
+  stopped only at this plan-completion requirement before the status update.
+- Local and external-working-directory `timeout 180s make check` both passed
+  the portable contracts and explicitly skipped unavailable `xcodebuild`.

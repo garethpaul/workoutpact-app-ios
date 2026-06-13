@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Bound Stripe and Digits requests to controller lifecycle generations so
+  pre-dismissal callbacks remain invalid after a later appearance.
 - Rejected Stripe tokenization requests and asynchronous completions after the
   payment screen is covered, before billing UI can be presented.
 - Added portable lifecycle ordering contracts for both payment visibility

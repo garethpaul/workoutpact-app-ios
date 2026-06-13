@@ -70,7 +70,8 @@ verification sequence in
   Xcode build pending the Swift and retired-SDK migration.
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, stale
-  payment callback, and no-backend billing disclosure, social-share result
+  payment callback, callback-generation, and no-backend billing disclosure,
+  social-share result
   logging and motion-subtype, storyboard navigation, and protected-screen
   outlet and keyboard-shift static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
@@ -137,6 +138,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   protected-screen keyboard restoration during navigation.
 - See `docs/plans/2026-06-13-workoutpact-stale-payment-callback.md` for rejecting
   tokenization work after the payment screen is covered.
+- See `docs/plans/2026-06-13-workoutpact-callback-generation-guards.md` for
+  rejecting pre-dismissal Stripe and Digits callbacks after reappearance.
 
 ## Contributing
 

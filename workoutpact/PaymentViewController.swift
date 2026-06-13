@@ -14,6 +14,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
     var payButton: UIBarButtonItem?
     var paymentView: PTKView?
     var paymentViewVisible = false
+    var paymentGeneration = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +41,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
+        paymentGeneration += 1
         paymentViewVisible = false
     }
 
@@ -75,6 +77,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
             card.expMonth = paymentCard.expMonth
             card.expYear = paymentCard.expYear
             card.cvc = paymentCard.cvc
+            let paymentRequestGeneration = paymentGeneration
 
             STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
                 dispatch_async(dispatch_get_main_queue(), {
@@ -85,7 +88,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
                         NSLog("Stripe tokenization failed.")
                         return
                     }
-                    if !self.paymentViewVisible {
+                    if paymentRequestGeneration != self.paymentGeneration || !self.paymentViewVisible {
                         return
                     }
 

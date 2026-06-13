@@ -47,6 +47,8 @@ devices.
   The UI must disclose that boundary before continuing to workout sharing.
 - Stripe tokenization requests and asynchronous completions must recheck that
   the payment screen is visible before starting work or presenting billing UI.
+- Stripe and Digits completions must retain their originating controller
+  generation so callbacks cannot become valid again after reappearance.
 - Dependency manifests detected: Podfile, Podfile.lock. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 
 ## Mobile Privacy Notes
