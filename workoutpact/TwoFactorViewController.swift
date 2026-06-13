@@ -12,6 +12,8 @@ import DigitsKit
 
 class TwoFactorViewController: UIViewController {
 
+    var authenticationContextActive = false
+
     @IBAction func enableTwoFactor(sender: AnyObject) {
         twoFactor()
     }
@@ -21,8 +23,24 @@ class TwoFactorViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        authenticationContextActive = true
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        if self.isBeingDismissed() || self.isMovingFromParentViewController() {
+            authenticationContextActive = false
+        }
+    }
+
 
     func twoFactor() {
+        if !authenticationContextActive {
+            return
+        }
+
         let digitsAppearance = DGTAppearance()
         // Change color properties to customize the look:
         digitsAppearance.backgroundColor = toColor("#7BC7C6")
@@ -38,6 +56,10 @@ class TwoFactorViewController: UIViewController {
             }
 
             dispatch_async(dispatch_get_main_queue(), {
+                if !self.authenticationContextActive {
+                    return
+                }
+
                 self.performSegueWithIdentifier("protected", sender: self)
             })
         }

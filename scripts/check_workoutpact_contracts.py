@@ -27,6 +27,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-10-workoutpact-keyboard-lifecycle-reset.md",
     DOCS_PLANS / "2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md",
     DOCS_PLANS / "2026-06-13-workoutpact-stale-payment-callback.md",
+    DOCS_PLANS / "2026-06-13-workoutpact-stale-digits-callback.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -204,6 +205,46 @@ def main():
     require(
         "dispatch_async(dispatch_get_main_queue()" in two_factor,
         "Digits verification must perform protected segue on the main queue",
+        failures,
+    )
+    authentication_request = two_factor.split("func twoFactor()", 1)[1].split(
+        "override func didReceiveMemoryWarning", 1
+    )[0]
+    authentication_appearance = two_factor.split(
+        "override func viewWillAppear", 1
+    )[1].split("override func viewWillDisappear", 1)[0]
+    authentication_disappearance = two_factor.split(
+        "override func viewWillDisappear", 1
+    )[1].split("func twoFactor()", 1)[0]
+    authentication_request_guard = "if !authenticationContextActive"
+    authentication_completion_guard = "if !self.authenticationContextActive"
+    authentication_call = "digits.authenticateWithDigitsAppearance"
+    protected_segue = 'self.performSegueWithIdentifier("protected", sender: self)'
+    require(
+        "var authenticationContextActive = false" in two_factor
+        and "authenticationContextActive = true" in authentication_appearance
+        and "self.isBeingDismissed()" in authentication_disappearance
+        and "self.isMovingFromParentViewController()" in authentication_disappearance
+        and "authenticationContextActive = false" in authentication_disappearance
+        and authentication_disappearance.index("self.isBeingDismissed()")
+        < authentication_disappearance.index("authenticationContextActive = false"),
+        "two-factor screen lifecycle must track whether callbacks may reveal protected content",
+        failures,
+    )
+    require(
+        authentication_request_guard in authentication_request
+        and authentication_request.index(authentication_request_guard)
+        < authentication_request.index(authentication_call),
+        "inactive two-factor screens must be rejected before Digits authentication",
+        failures,
+    )
+    require(
+        authentication_completion_guard in authentication_request
+        and authentication_request.index("error != nil || session == nil")
+        < authentication_request.index("dispatch_async(dispatch_get_main_queue()")
+        < authentication_request.index(authentication_completion_guard)
+        < authentication_request.index(protected_segue),
+        "stale Digits success callbacks must be rejected on the main queue before the protected segue",
         failures,
     )
     require(
