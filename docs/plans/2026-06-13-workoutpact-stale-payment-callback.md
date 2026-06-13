@@ -1,6 +1,6 @@
 # WorkoutPact Stale Payment Callback Guard
 
-Status: In Progress
+Status: Completed
 
 ## Goal
 
@@ -19,9 +19,11 @@ UI after the payment screen has been covered or dismissed.
 
 ## Verification
 
-- Run the focused stale-payment callback contract.
-- Run `make check` locally and from an external working directory.
-- Reject mutations that remove or invert lifecycle state and move either guard
-  after its protected operation.
-- Run Python compilation and `git diff --check`.
-- Record the unavailable Xcode/device boundary without claiming runtime proof.
+- The portable stale-payment lifecycle contract passed.
+- Local and external-directory `make check` passed.
+- Eight hostile mutations were rejected: either visibility assignment removed,
+  the request guard inverted, either guard removed, either guard ordered after
+  its protected operation, and stale plan status.
+- Python compilation and `git diff --check` passed.
+- `xcodebuild` is unavailable on this Linux host, so no simulator or physical
+  device behavior is claimed.

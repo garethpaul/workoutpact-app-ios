@@ -69,10 +69,10 @@ verification sequence in
   cancellation, and manual dispatch; Linux runners intentionally skip the
   Xcode build pending the Swift and retired-SDK migration.
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
-  payment input, payment-button, payment-key, payment-error logging, and
-  no-backend billing disclosure, social-share result logging and motion-subtype,
-  storyboard navigation, and protected-screen outlet and keyboard-shift static
-  contracts
+  payment input, payment-button, payment-key, payment-error logging, stale
+  payment callback, and no-backend billing disclosure, social-share result
+  logging and motion-subtype, storyboard navigation, and protected-screen
+  outlet and keyboard-shift static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
@@ -86,6 +86,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure a real `pk_` publishable key locally and keep billing disabled unless a backend contract and tests exist.
 - Successful tokenization must disclose that no donation or charge exists and
   require explicit continuation without billing.
+- Stripe tokenization requests and completions must not present billing UI
+  after the payment screen has been covered.
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 - The shake-to-share flow should gate on the delivered motion subtype before
   presenting the confirmation prompt.
@@ -133,6 +135,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   explicit no-charge disclosure and root-independent verification contract.
 - See `docs/plans/2026-06-10-workoutpact-keyboard-lifecycle-reset.md` for
   protected-screen keyboard restoration during navigation.
+- See `docs/plans/2026-06-13-workoutpact-stale-payment-callback.md` for rejecting
+  tokenization work after the payment screen is covered.
 
 ## Contributing
 

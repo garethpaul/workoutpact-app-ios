@@ -45,6 +45,8 @@ devices.
   notifications so sensitive UI does not drift off screen during text entry.
 - Stripe tokenization does not create a donation or charge in this prototype.
   The UI must disclose that boundary before continuing to workout sharing.
+- Stripe tokenization requests and asynchronous completions must recheck that
+  the payment screen is visible before starting work or presenting billing UI.
 - Dependency manifests detected: Podfile, Podfile.lock. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 
 ## Mobile Privacy Notes

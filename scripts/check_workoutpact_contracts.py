@@ -26,6 +26,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-10-workoutpact-no-backend-billing-notice.md",
     DOCS_PLANS / "2026-06-10-workoutpact-keyboard-lifecycle-reset.md",
     DOCS_PLANS / "2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md",
+    DOCS_PLANS / "2026-06-13-workoutpact-stale-payment-callback.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -259,6 +260,38 @@ def main():
     require(
         "dispatch_async(dispatch_get_main_queue()" in payment,
         "payment token callback must return to the main queue before UI updates",
+        failures,
+    )
+    payment_request = payment.split("func createToken()", 1)[1].split(
+        "func handleToken", 1
+    )[0]
+    appearance_method = payment.split("override func viewWillAppear", 1)[1].split(
+        "override func viewWillDisappear", 1
+    )[0]
+    disappearance_method = payment.split("override func viewWillDisappear", 1)[1].split(
+        "func paymentView", 1
+    )[0]
+    lifecycle_guard = "if !paymentViewVisible"
+    completion_guard = "if !self.paymentViewVisible"
+    require(
+        "paymentViewVisible = true" in appearance_method
+        and "paymentViewVisible = false" in disappearance_method,
+        "payment screen lifecycle must track whether callbacks may present UI",
+        failures,
+    )
+    require(
+        lifecycle_guard in payment_request
+        and payment_request.index(lifecycle_guard)
+        < payment_request.index("STPAPIClient.sharedClient().createTokenWithCard"),
+        "inactive payment screens must be rejected before Stripe tokenization",
+        failures,
+    )
+    require(
+        completion_guard in payment_request
+        and payment_request.index("error != nil || token == nil")
+        < payment_request.index(completion_guard)
+        < payment_request.index("self.handleToken(token)"),
+        "stale Stripe completions must be rejected before billing UI is handled",
         failures,
     )
     require(

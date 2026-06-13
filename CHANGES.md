@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-13
+
+- Rejected Stripe tokenization requests and asynchronous completions after the
+  payment screen is covered, before billing UI can be presented.
+- Added portable lifecycle ordering contracts for both payment visibility
+  guards.
+
 ## 2026-06-10
 
 - Restored any active protected-screen keyboard offset before navigation

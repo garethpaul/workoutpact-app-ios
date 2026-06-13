@@ -13,6 +13,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
     var payButton: UIBarButtonItem?
     var paymentView: PTKView?
+    var paymentViewVisible = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +33,16 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        paymentViewVisible = true
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        paymentViewVisible = false
+    }
+
     func paymentView(paymentView: PTKView!, withCard card: PTKCard!, isValid valid: Bool) {
         if let button = payButton {
             button.enabled = valid
@@ -39,6 +50,10 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
     }
 
     func createToken() {
+        if !paymentViewVisible {
+            return
+        }
+
         if let paymentInput = paymentView {
             if paymentInput.card == nil {
                 NSLog("Payment card input is not ready for tokenization.")
@@ -68,6 +83,9 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
                     }
                     if error != nil || token == nil {
                         NSLog("Stripe tokenization failed.")
+                        return
+                    }
+                    if !self.paymentViewVisible {
                         return
                     }
 

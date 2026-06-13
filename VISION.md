@@ -18,6 +18,7 @@ Priority:
 - Preserve login, verification, payment-token, and shake-to-share screens
 - Keep API keys and payment credentials out of source control
 - Keep payment UI state guarded while tokenization is in flight
+- Reject payment requests and callbacks after the payment screen is covered
 - Keep PaymentKit input guarded before tokenization
 - Keep Stripe tokenization disabled until a local publishable key is configured
 - Keep payment failure logs non-sensitive
