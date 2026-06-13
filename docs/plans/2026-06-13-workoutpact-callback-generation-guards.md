@@ -43,3 +43,6 @@ present billing UI or navigate to protected content in the wrong lifecycle.
   stopped only at this plan-completion requirement before the status update.
 - Local and external-working-directory `timeout 180s make check` both passed
   the portable contracts and explicitly skipped unavailable `xcodebuild`.
+- Eleven isolated hostile mutations were rejected for either missing generation
+  state or invalidation, request generations captured after their SDK calls,
+  removed or inverted completion guards, and stale plan status.
