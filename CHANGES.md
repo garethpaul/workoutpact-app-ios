@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-14
+
+- Moved the Stripe generation and visibility guard ahead of payment-button and
+  tokenization-error handling so stale completions cannot mutate current UI.
+- Added mutation-sensitive ordering coverage for the complete payment callback.
+
 ## 2026-06-13
 
 - Bound Stripe and Digits requests to controller lifecycle generations so

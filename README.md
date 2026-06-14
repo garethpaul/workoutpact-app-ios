@@ -89,6 +89,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   require explicit continuation without billing.
 - Stripe tokenization requests and completions must not present billing UI
   after the payment screen has been covered.
+- Stale Stripe completions must return before re-enabling the payment button or
+  handling an obsolete tokenization failure.
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 - The shake-to-share flow should gate on the delivered motion subtype before
   presenting the confirmation prompt.
@@ -140,6 +142,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   tokenization work after the payment screen is covered.
 - See `docs/plans/2026-06-13-workoutpact-callback-generation-guards.md` for
   rejecting pre-dismissal Stripe and Digits callbacks after reappearance.
+- See `docs/plans/2026-06-14-workoutpact-stale-payment-ui-state.md` for rejecting
+  stale Stripe completions before any completion-side UI or error handling.
 
 ## Contributing
 

@@ -81,14 +81,14 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
             STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
                 dispatch_async(dispatch_get_main_queue(), {
+                    if paymentRequestGeneration != self.paymentGeneration || !self.paymentViewVisible {
+                        return
+                    }
                     if let button = self.payButton {
                         button.enabled = true
                     }
                     if error != nil || token == nil {
                         NSLog("Stripe tokenization failed.")
-                        return
-                    }
-                    if paymentRequestGeneration != self.paymentGeneration || !self.paymentViewVisible {
                         return
                     }
 

@@ -30,6 +30,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-13-workoutpact-stale-digits-callback.md",
     DOCS_PLANS / "2026-06-13-workoutpact-callback-generation-guards.md",
     DOCS_PLANS / "2026-06-14-workoutpact-make-root-override-protection.md",
+    DOCS_PLANS / "2026-06-14-workoutpact-stale-payment-ui-state.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -348,11 +349,14 @@ def main():
         failures,
     )
     require(
-        completion_guard in payment_request
-        and payment_request.index("error != nil || token == nil")
-        < payment_request.index(completion_guard)
+        "paymentRequestGeneration != self.paymentGeneration" in payment_request
+        and completion_guard in payment_request
+        and payment_request.index("dispatch_async(dispatch_get_main_queue()")
+        < payment_request.index("paymentRequestGeneration != self.paymentGeneration")
+        < payment_request.index("if let button = self.payButton")
+        < payment_request.index("error != nil || token == nil")
         < payment_request.index("self.handleToken(token)"),
-        "stale Stripe completions must be rejected before billing UI is handled",
+        "stale Stripe completions must be rejected before button, error, or billing UI handling",
         failures,
     )
     require(

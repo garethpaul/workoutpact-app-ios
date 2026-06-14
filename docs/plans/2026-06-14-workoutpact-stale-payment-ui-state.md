@@ -1,6 +1,6 @@
 # WorkoutPact Stale Payment UI State
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -34,3 +34,26 @@ UI state and process an obsolete failure even though `handleToken` is guarded.
 - Do not modernize Swift, update vendored SDKs, change billing behavior, or
   alter storyboard/project metadata.
 - Do not merge or close stacked pull requests without explicit authorization.
+
+## Work Completed
+
+- Moved the retained payment generation and visibility check to the start of
+  the main-thread Stripe completion.
+- Kept payment-button restoration, current-request error handling, and token
+  handling behind that lifecycle guard.
+- Added portable ordering, documentation, and completed-plan contracts.
+
+## Verification Results
+
+- The focused completion-order contract passed before enabling completed-plan
+  verification.
+- Six isolated hostile mutations were rejected: button restoration or error
+  handling before the lifecycle guard, either missing comparison, token handling
+  before the guard, and incomplete plan evidence.
+- Local `make lint`, `make test`, `make build`, and `make check` passed the
+  portable contracts.
+- External-directory and hostile-root `make check` passed with paths anchored
+  to the protected Makefile root.
+- Every full gate truthfully skipped `xcodebuild` because it is unavailable on
+  this Linux host; no simulator, device, Stripe, or PaymentKit execution is
+  claimed.
