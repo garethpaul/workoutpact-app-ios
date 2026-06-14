@@ -1,6 +1,6 @@
 # WorkoutPact Make Root Override Protection
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -37,3 +37,20 @@ the checked-out project.
 - Do not change Swift behavior, dependencies, workflows, project/storyboard
   metadata, vendored SDKs, or deployment configuration.
 - Do not merge or close any pull request without explicit owner authorization.
+
+## Work Completed
+
+- Protected the Makefile-derived root while preserving the Python command
+  override and every existing target.
+- Added exact portable contracts for protected derivation, checker/workspace
+  paths, Python override semantics, and this completed plan.
+
+## Verification Results
+
+- Python compilation and the portable checker passed.
+- Local, external-working-directory, and hostile `ROOT` full `make check`
+  gates passed; each truthfully skipped the unavailable Linux `xcodebuild`.
+- Eight focused mutations covering root derivation, Python override semantics,
+  rooted checker/workspace paths, and completed-plan status were rejected.
+- Plist/XML/workflow, whitespace, explicit-artifact, and changed-line
+  credential audits passed before shipment.

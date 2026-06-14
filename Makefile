@@ -1,5 +1,5 @@
 PYTHON ?= python3
-ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 CHECK_SCRIPT := $(ROOT)/scripts/check_workoutpact_contracts.py
 WORKSPACE := $(ROOT)/workoutpact.xcworkspace
 
