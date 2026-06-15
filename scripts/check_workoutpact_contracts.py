@@ -31,6 +31,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-13-workoutpact-callback-generation-guards.md",
     DOCS_PLANS / "2026-06-14-workoutpact-make-root-override-protection.md",
     DOCS_PLANS / "2026-06-14-workoutpact-stale-payment-ui-state.md",
+    DOCS_PLANS / "2026-06-15-workoutpact-stale-twitter-login-callback.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -57,6 +58,41 @@ def read_plist(relative_path, failures):
 def require(condition, message, failures):
     if not condition:
         failures.append(message)
+
+
+def validate_login_lifecycle(login, failures):
+    login_appearance = login.split("override func viewWillAppear", 1)[1].split(
+        "override func viewWillDisappear", 1
+    )[0]
+    login_disappearance = login.split("override func viewWillDisappear", 1)[1].split(
+        "override func viewDidLoad", 1
+    )[0]
+    login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
+        "logInButton.center", 1
+    )[0]
+    login_lifecycle_guard = "if !self.loginContextActive"
+    login_storyboard_lookup = "if let storyboard = self.storyboard"
+    require(
+        "var loginContextActive = false" in login
+        and "loginContextActive = true" in login_appearance
+        and "self.isBeingDismissed()" in login_disappearance
+        and "self.isMovingFromParentViewController()" in login_disappearance
+        and "self.navigationController?.isBeingDismissed() == true" in login_disappearance
+        and "loginContextActive = false" in login_disappearance,
+        "login screen lifecycle must track whether Twitter callbacks may present phone verification",
+        failures,
+    )
+    require(
+        "error != nil || session == nil" in login_completion
+        and login_lifecycle_guard in login_completion
+        and login_completion.index("error != nil || session == nil")
+        < login_completion.index("dispatch_async(dispatch_get_main_queue()")
+        < login_completion.index(login_lifecycle_guard)
+        < login_completion.index(login_storyboard_lookup)
+        < login_completion.index("self.presentViewController"),
+        "stale Twitter success callbacks must be rejected on the main queue before presentation",
+        failures,
+    )
 
 
 def plist_url_schemes(plist):
@@ -200,6 +236,7 @@ def main():
         "Twitter login must safely cast the phone verification controller",
         failures,
     )
+    validate_login_lifecycle(login, failures)
     require(
         "error != nil || session == nil" in two_factor,
         "Digits verification must not advance to protected content on cancelled or failed verification",

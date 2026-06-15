@@ -1,6 +1,6 @@
 # WorkoutPact Stale Twitter Login Callback
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -13,8 +13,9 @@ therefore reveal authentication UI from a stale controller lifecycle.
 
 1. Track whether the login controller remains an active navigation context.
 2. Activate that context on appearance and invalidate it only when the
-   controller is dismissed or removed, not while TwitterKit temporarily covers
-   the screen for authentication.
+   controller is dismissed or removed, including dismissal of its containing
+   navigation controller, not while TwitterKit temporarily covers the screen
+   for authentication.
 3. Recheck the lifecycle on the main queue after TwitterKit succeeds and
    before storyboard lookup or presentation.
 4. Preserve cancellation/error behavior, the guarded storyboard cast, the
@@ -41,3 +42,22 @@ therefore reveal authentication UI from a stale controller lifecycle.
   alter storyboard/project metadata.
 - Do not merge or close the existing pull-request stack without explicit owner
   authorization.
+
+## Work Completed
+
+- Added login-controller lifecycle state that activates on appearance and is
+  invalidated when the controller, its navigation position, or its containing
+  navigation controller is dismissed or removed.
+- Rechecked the lifecycle inside the main-thread Twitter success completion
+  before storyboard lookup, controller creation, or presentation.
+- Added static ordering contracts and synchronized README and changelog
+  evidence without changing the legacy SDK or storyboard boundary.
+
+## Verification Results
+
+- The focused static checker accepted the completed lifecycle and ordering
+  contract, and all eight hostile mutations were rejected.
+- Repository-root and external-directory `make check` both passed the portable
+  checker and mutation suite.
+- Both full gates explicitly reported `xcodebuild unavailable; skipping legacy
+  iOS build`; no simulator, signing, or physical-device validation is claimed.

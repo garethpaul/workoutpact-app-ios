@@ -14,6 +14,20 @@ import TwitterKit
 
 class LoginViewController: UIViewController {
 
+    var loginContextActive = false
+
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        loginContextActive = true
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        if self.isBeingDismissed() || self.isMovingFromParentViewController() || self.navigationController?.isBeingDismissed() == true {
+            loginContextActive = false
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -26,6 +40,9 @@ class LoginViewController: UIViewController {
 
             // ensure that presentViewController happens from the main thread/queue
             dispatch_async(dispatch_get_main_queue(), {
+                if !self.loginContextActive {
+                    return
+                }
                 if let storyboard = self.storyboard {
                     if let controller = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
                         self.presentViewController(controller, animated: true, completion: nil)

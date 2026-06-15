@@ -71,6 +71,7 @@ verification sequence in
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, stale
   payment callback, callback-generation, and no-backend billing disclosure,
+  stale Twitter login callback,
   social-share result
   logging and motion-subtype, storyboard navigation, and protected-screen
   outlet and keyboard-shift static contracts
@@ -144,6 +145,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   rejecting pre-dismissal Stripe and Digits callbacks after reappearance.
 - See `docs/plans/2026-06-14-workoutpact-stale-payment-ui-state.md` for rejecting
   stale Stripe completions before any completion-side UI or error handling.
+- See `docs/plans/2026-06-15-workoutpact-stale-twitter-login-callback.md` for
+  rejecting Twitter success callbacks after the login controller leaves its
+  navigation lifecycle.
 
 ## Contributing
 

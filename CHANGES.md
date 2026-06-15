@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-15
+
+- Rejected successful Twitter login callbacks after the login controller is
+  dismissed or removed, before storyboard lookup or phone-verification UI.
+- Added lifecycle and ordering contracts for stale Twitter login completions.
+
 ## 2026-06-14
 
 - Moved the Stripe generation and visibility guard ahead of payment-button and
