@@ -33,6 +33,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-14-workoutpact-stale-payment-ui-state.md",
     DOCS_PLANS / "2026-06-15-workoutpact-stale-twitter-login-callback.md",
     DOCS_PLANS / "2026-06-16-workoutpact-weak-twitter-login-callback.md",
+    DOCS_PLANS / "2026-06-16-workoutpact-twitter-transition-guard.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -132,6 +133,38 @@ def validate_login_callback_ownership(login, failures):
         and "self.storyboard" not in login_completion
         and "self.presentViewController" not in login_completion,
         "Twitter login completion must use only the promoted controller for UI state",
+        failures,
+    )
+
+
+def validate_login_transition(login, failures):
+    login_appearance = login.split("override func viewWillAppear", 1)[1].split(
+        "override func viewWillDisappear", 1
+    )[0]
+    login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
+        "logInButton.center", 1
+    )[0]
+    lifecycle_guard = "if !controller.loginContextActive"
+    transition_guard = "if controller.loginTransitionInFlight"
+    transition_claim = "controller.loginTransitionInFlight = true"
+    storyboard_lookup = "if let storyboard = controller.storyboard"
+    require(
+        "var loginTransitionInFlight = false" in login
+        and "loginTransitionInFlight = false" in login_appearance,
+        "Twitter login transition ownership must reset for each visible appearance",
+        failures,
+    )
+    require(
+        lifecycle_guard in login_completion
+        and transition_guard in login_completion
+        and transition_claim in login_completion
+        and storyboard_lookup in login_completion
+        and login_completion.index(lifecycle_guard)
+        < login_completion.index(transition_guard)
+        < login_completion.index(transition_claim)
+        < login_completion.index(storyboard_lookup)
+        < login_completion.index("controller.presentViewController"),
+        "Twitter login success must claim one transition before destination construction and presentation",
         failures,
     )
 
@@ -283,6 +316,12 @@ def main():
             f"{document_name} must document weak Twitter login callback ownership",
             failures,
         )
+    for document_name in ("README.md", "SECURITY.md", "VISION.md", "CHANGES.md"):
+        require(
+            "single twitter login transition" in read_text(document_name).lower(),
+            f"{document_name} must document the single Twitter login transition guard",
+            failures,
+        )
     require(
         "as! TwoFactorViewController" not in login
         and "as? TwoFactorViewController" in login,
@@ -291,6 +330,7 @@ def main():
     )
     validate_login_lifecycle(login, failures)
     validate_login_callback_ownership(login, failures)
+    validate_login_transition(login, failures)
     require(
         "error != nil || session == nil" in two_factor,
         "Digits verification must not advance to protected content on cancelled or failed verification",
@@ -737,6 +777,16 @@ def main():
             failures,
         )
         require("make check" in text, f"{plan.relative_to(ROOT)} must document make check verification", failures)
+
+    transition_plan = read_text("docs/plans/2026-06-16-workoutpact-twitter-transition-guard.md")
+    require(
+        "Status: Completed" in transition_plan
+        and "14 lifecycle mutations were rejected" in transition_plan
+        and "Repository and external-directory `make check` passed" in transition_plan
+        and "generated-artifact and credential-pattern audits passed" in transition_plan,
+        "Twitter transition guard plan must record completed verification evidence",
+        failures,
+    )
 
     if failures:
         print("WorkoutPact contract check failed:")

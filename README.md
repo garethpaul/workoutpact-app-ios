@@ -151,6 +151,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-16-workoutpact-weak-twitter-login-callback.md` for the
   ownership boundary where the Twitter login button stays cycle-free.
   Queued presentation callbacks capture the controller weakly.
+- Keep the single Twitter login transition guard so duplicate successful
+  callbacks cannot present multiple phone-verification screens.
 
 ## Contributing
 

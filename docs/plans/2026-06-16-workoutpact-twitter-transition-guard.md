@@ -1,6 +1,6 @@
 # WorkoutPact Twitter Transition Guard
 
-Status: Planned
+Status: Completed
 
 ## Priority
 
@@ -69,7 +69,7 @@ instantiate and present `TwoFactorViewController`.
 ## Verification
 
 - Run the focused Twitter lifecycle and transition contracts.
-- Run repository and external-directory Make gates available on Linux.
+- Run repository and external-directory `make check` gates available on Linux.
 - Reject isolated state, reset, ordering, guard, claim, guidance, registration,
   and plan-evidence mutations.
 - Audit the exact diff, generated artifacts, credentials, conflict markers,
@@ -80,3 +80,13 @@ instantiate and present `TwoFactorViewController`.
 - One visible login appearance can present at most one two-factor controller.
 - Returning to the login screen restores eligibility for a later successful login.
 - Existing weak ownership and stale-callback protections remain intact.
+
+## Verification Completed
+
+- The focused transition contract and existing callback-ownership contract
+  passed; 14 lifecycle mutations were rejected by the combined lifecycle gate.
+- Repository and external-directory `make check` passed every portable contract;
+  both runs truthfully skipped unavailable `xcodebuild`.
+- Checker and mutation-script compilation passed.
+- Exact intended-path, generated-artifact and credential-pattern audits passed,
+  together with conflict-marker, binary, large-file, mode, and whitespace checks.

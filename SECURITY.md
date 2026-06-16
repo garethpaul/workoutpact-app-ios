@@ -55,6 +55,8 @@ devices.
 
 Twitter login callbacks use weak controller ownership so a login button or
 queued presentation block cannot keep a dismissed authentication screen alive.
+The single Twitter login transition guard prevents duplicate successful
+callbacks from presenting multiple protected-flow entry screens.
 
 If this project requests device permissions such as location, camera, microphone, contacts, Bluetooth, health data, or local storage access, reports should describe the permission involved and whether sensitive data can be accessed, persisted, or transmitted unexpectedly. Please avoid testing against real third-party user data or accounts you do not control.
 

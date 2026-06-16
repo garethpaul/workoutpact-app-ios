@@ -15,10 +15,12 @@ import TwitterKit
 class LoginViewController: UIViewController {
 
     var loginContextActive = false
+    var loginTransitionInFlight = false
 
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         loginContextActive = true
+        loginTransitionInFlight = false
     }
 
     override func viewWillDisappear(animated: Bool) {
@@ -44,6 +46,10 @@ class LoginViewController: UIViewController {
                     if !controller.loginContextActive {
                         return
                     }
+                    if controller.loginTransitionInFlight {
+                        return
+                    }
+                    controller.loginTransitionInFlight = true
                     if let storyboard = controller.storyboard {
                         if let twoFactorController = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
                             controller.presentViewController(twoFactorController, animated: true, completion: nil)

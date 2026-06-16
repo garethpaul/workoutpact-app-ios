@@ -17,6 +17,7 @@ Priority:
 
 - Preserve login, verification, payment-token, and shake-to-share screens
 - Keep Twitter login callbacks weakly owned by the active controller lifecycle
+- Keep a single Twitter login transition per visible login appearance
 - Keep API keys and payment credentials out of source control
 - Keep payment UI state guarded while tokenization is in flight
 - Reject payment requests and callbacks after the payment screen is covered
