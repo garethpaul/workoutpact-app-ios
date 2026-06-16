@@ -28,6 +28,7 @@ Priority:
 - Require explicit disclosure that tokenization creates no donation or charge
 - Keep social-share result logs out of the prototype
 - Gate shake-to-share prompts on the delivered motion subtype
+- Reject overlapping shake confirmation while another modal is presented
 - Keep storyboard navigation casts guarded
 - Guard protected-screen outlets before setup work
 - Keep protected-screen keyboard movement bounded to one active shift

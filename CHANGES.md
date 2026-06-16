@@ -2,6 +2,8 @@
 
 ## 2026-06-16
 
+- Rejected overlapping shake confirmation while the workout controller already
+  presents another modal view.
 - Added a single Twitter login transition guard so duplicate successful
   callbacks cannot present multiple two-factor screens from one appearance.
 - Broke the Twitter login button retain cycle with weak provider and queued

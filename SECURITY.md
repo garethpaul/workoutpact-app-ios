@@ -41,6 +41,8 @@ devices.
 - Review found secret-like configuration names that require careful review before use; changes in those areas should receive security-focused review before merge.
 - Social sharing should remain explicit and should not log Twitter composer
   outcomes from the workout flow.
+- Overlapping shake confirmation is rejected while the workout controller
+  already presents another modal view.
 - Protected-screen keyboard movement should ignore duplicate show/hide
   notifications so sensitive UI does not drift off screen during text entry.
 - Stripe tokenization does not create a donation or charge in this prototype.

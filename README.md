@@ -72,8 +72,8 @@ verification sequence in
   payment input, payment-button, payment-key, payment-error logging, stale
   payment callback, callback-generation, and no-backend billing disclosure,
   stale Twitter login callback and weak callback ownership,
-  social-share result
-  logging and motion-subtype, storyboard navigation, and protected-screen
+  social-share result logging, motion-subtype, and overlapping shake confirmation,
+  storyboard navigation, and protected-screen
   outlet and keyboard-shift static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.

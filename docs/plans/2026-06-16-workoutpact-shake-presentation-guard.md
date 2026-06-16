@@ -1,6 +1,6 @@
 # Guard Shake Confirmation Presentation Ownership
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -37,8 +37,9 @@ attempt overlapping modal presentation.
 
 ## Verification
 
-- Prove the pre-change shake handler fails the new focused contract.
-- Run focused mutations and repository/external-directory `make check`.
-- Record the Linux `xcodebuild` limitation without weakening portable checks.
-- Audit exact paths, generated artifacts, credentials, conflict markers,
-  binaries, modes, and large files before shipping.
+- The pre-change shake handler failed the new focused contract.
+- All four shake-presentation mutations were rejected.
+- Repository and external-directory `make check` passed; Linux reported
+  `xcodebuild unavailable` and truthfully skipped the legacy native build.
+- Exact-path diff, generated-artifact and credential-pattern audits passed,
+  together with conflict-marker, binary, mode, and large-file checks.

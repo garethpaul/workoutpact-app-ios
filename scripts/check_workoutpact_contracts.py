@@ -34,6 +34,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-15-workoutpact-stale-twitter-login-callback.md",
     DOCS_PLANS / "2026-06-16-workoutpact-weak-twitter-login-callback.md",
     DOCS_PLANS / "2026-06-16-workoutpact-twitter-transition-guard.md",
+    DOCS_PLANS / "2026-06-16-workoutpact-shake-presentation-guard.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -165,6 +166,28 @@ def validate_login_transition(login, failures):
         < login_completion.index(storyboard_lookup)
         < login_completion.index("controller.presentViewController"),
         "Twitter login success must claim one transition before destination construction and presentation",
+        failures,
+    )
+
+
+def validate_shake_presentation(shake, failures):
+    handler = shake.split("override func motionEnded", 1)[1].split(
+        "func presentTweetComposer", 1
+    )[0]
+    motion_guard = "if motion != UIEventSubtype.MotionShake"
+    presentation_guard = "if self.presentedViewController != nil"
+    alert_construction = "let alert = UIAlertController"
+    alert_presentation = "self.presentViewController(alert"
+    require(
+        motion_guard in handler
+        and presentation_guard in handler
+        and alert_construction in handler
+        and alert_presentation in handler
+        and handler.index(motion_guard)
+        < handler.index(presentation_guard)
+        < handler.index(alert_construction)
+        < handler.index(alert_presentation),
+        "shake confirmation must reject overlapping modal presentation before constructing its alert",
         failures,
     )
 
@@ -554,6 +577,7 @@ def main():
         "shake sharing must use the delivered motion subtype before presenting confirmation",
         failures,
     )
+    validate_shake_presentation(shake, failures)
     require(
         "println(" not in shake
         and "Tweet composition cancelled" not in shake
@@ -755,6 +779,12 @@ def main():
         failures,
     )
     require(
+        "SHAKE_PRESENTATION_CONTRACT_SCRIPT := $(ROOT)/scripts/test_shake_presentation_contract.py" in makefile
+        and '$(PYTHON) "$(SHAKE_PRESENTATION_CONTRACT_SCRIPT)"' in makefile,
+        "Makefile must register the rooted shake-presentation mutation gate",
+        failures,
+    )
+    require(
         "WORKSPACE := $(ROOT)/workoutpact.xcworkspace" in makefile,
         "Makefile must resolve the Xcode workspace from the repository root",
         failures,
@@ -787,6 +817,25 @@ def main():
         "Twitter transition guard plan must record completed verification evidence",
         failures,
     )
+
+    shake_presentation_plan = read_text(
+        "docs/plans/2026-06-16-workoutpact-shake-presentation-guard.md"
+    )
+    require(
+        "Status: Completed" in shake_presentation_plan
+        and "four shake-presentation mutations were rejected" in shake_presentation_plan
+        and "Repository and external-directory `make check` passed" in shake_presentation_plan
+        and "generated-artifact and credential-pattern audits passed" in shake_presentation_plan,
+        "shake presentation guard plan must record completed verification evidence",
+        failures,
+    )
+
+    for doc in ("README.md", "SECURITY.md", "VISION.md", "CHANGES.md"):
+        require(
+            "overlapping shake confirmation" in read_text(doc).lower(),
+            f"{doc} must document the overlapping shake confirmation guard",
+            failures,
+        )
 
     if failures:
         print("WorkoutPact contract check failed:")
