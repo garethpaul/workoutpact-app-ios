@@ -32,6 +32,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-14-workoutpact-make-root-override-protection.md",
     DOCS_PLANS / "2026-06-14-workoutpact-stale-payment-ui-state.md",
     DOCS_PLANS / "2026-06-15-workoutpact-stale-twitter-login-callback.md",
+    DOCS_PLANS / "2026-06-16-workoutpact-weak-twitter-login-callback.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -70,8 +71,8 @@ def validate_login_lifecycle(login, failures):
     login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
         "logInButton.center", 1
     )[0]
-    login_lifecycle_guard = "if !self.loginContextActive"
-    login_storyboard_lookup = "if let storyboard = self.storyboard"
+    login_lifecycle_guard = "if !controller.loginContextActive"
+    login_storyboard_lookup = "if let storyboard = controller.storyboard"
     require(
         "var loginContextActive = false" in login
         and "loginContextActive = true" in login_appearance
@@ -89,8 +90,48 @@ def validate_login_lifecycle(login, failures):
         < login_completion.index("dispatch_async(dispatch_get_main_queue()")
         < login_completion.index(login_lifecycle_guard)
         < login_completion.index(login_storyboard_lookup)
-        < login_completion.index("self.presentViewController"),
+        < login_completion.index("controller.presentViewController"),
         "stale Twitter success callbacks must be rejected on the main queue before presentation",
+        failures,
+    )
+
+
+def validate_login_callback_ownership(login, failures):
+    login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
+        "logInButton.center", 1
+    )[0]
+    outer_capture = "TWTRLogInButton(logInCompletion: { [weak self]"
+    dispatch_capture = "dispatch_async(dispatch_get_main_queue(), { [weak self] in"
+    promotion = "if let controller = self"
+    lifecycle_guard = "if !controller.loginContextActive"
+    storyboard_lookup = "if let storyboard = controller.storyboard"
+    presentation = "controller.presentViewController"
+    require(
+        outer_capture in login
+        and dispatch_capture in login_completion
+        and promotion in login_completion,
+        "Twitter login callbacks must capture the controller weakly and promote it only on the main queue",
+        failures,
+    )
+    require(
+        dispatch_capture in login_completion
+        and promotion in login_completion
+        and lifecycle_guard in login_completion
+        and storyboard_lookup in login_completion
+        and presentation in login_completion
+        and login_completion.index(dispatch_capture)
+        < login_completion.index(promotion)
+        < login_completion.index(lifecycle_guard)
+        < login_completion.index(storyboard_lookup)
+        < login_completion.index(presentation),
+        "weak Twitter login ownership must preserve lifecycle and presentation ordering",
+        failures,
+    )
+    require(
+        "self.loginContextActive" not in login_completion
+        and "self.storyboard" not in login_completion
+        and "self.presentViewController" not in login_completion,
+        "Twitter login completion must use only the promoted controller for UI state",
         failures,
     )
 
@@ -226,10 +267,22 @@ def main():
         failures,
     )
     require(
-        "if let storyboard = self.storyboard" in login,
+        "if let storyboard = controller.storyboard" in login,
         "Twitter login must guard storyboard lookup before presenting phone verification",
         failures,
     )
+    documentation = {
+        "README.md": "Queued presentation callbacks capture the controller weakly",
+        "SECURITY.md": "Twitter login callbacks use weak controller ownership",
+        "VISION.md": "Keep Twitter login callbacks weakly owned",
+        "CHANGES.md": "Broke the Twitter login button retain cycle",
+    }
+    for document_name, phrase in documentation.items():
+        require(
+            phrase in read_text(document_name),
+            f"{document_name} must document weak Twitter login callback ownership",
+            failures,
+        )
     require(
         "as! TwoFactorViewController" not in login
         and "as? TwoFactorViewController" in login,
@@ -237,6 +290,7 @@ def main():
         failures,
     )
     validate_login_lifecycle(login, failures)
+    validate_login_callback_ownership(login, failures)
     require(
         "error != nil || session == nil" in two_factor,
         "Digits verification must not advance to protected content on cancelled or failed verification",
@@ -652,6 +706,12 @@ def main():
     require(
         "CHECK_SCRIPT := $(ROOT)/scripts/check_workoutpact_contracts.py" in makefile,
         "Makefile must use the rooted checker path",
+        failures,
+    )
+    require(
+        "LOGIN_OWNERSHIP_CONTRACT_SCRIPT := $(ROOT)/scripts/test_login_callback_ownership_contract.py" in makefile
+        and '$(PYTHON) "$(LOGIN_OWNERSHIP_CONTRACT_SCRIPT)"' in makefile,
+        "Makefile must register the rooted Twitter login ownership mutation gate",
         failures,
     )
     require(

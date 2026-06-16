@@ -1,6 +1,6 @@
 # WorkoutPact Weak Twitter Login Callback
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -51,10 +51,17 @@ retain cycle that can keep the dismissed login screen alive indefinitely.
 
 ## Verification
 
-- Pending implementation.
-- Run focused ownership contracts and mutations, then repository-root and
-  external-directory `make check` with explicit timeouts.
-- Audit the exact diff, generated artifacts, conflict markers, file modes,
-  whitespace, and added credential-like values.
-- Record Linux's unavailable Xcode/simulator boundary without weakening the
-  portable gate.
+- The ownership contract failed before implementation because both closures
+  captured strongly and no promoted controller existed, then passed after the
+  weak-capture change.
+- The existing login lifecycle suite passed all eight mutations, and the new
+  ownership suite rejected five mutations covering either strong capture,
+  missing or early promotion, and presentation through `self`.
+- Repository-root and external-directory `make check` passed the complete
+  portable checker and both mutation suites.
+- Makefile registration and completed-plan mutations were rejected by the full
+  gate.
+- Exact-diff, generated-artifact, conflict-marker, file-mode, whitespace, and
+  credential-pattern audits are included in the final shipping gate.
+- Both full gates reported `xcodebuild unavailable; skipping legacy iOS build`;
+  no simulator, signing, or physical-device validation is claimed.

@@ -71,7 +71,7 @@ verification sequence in
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, stale
   payment callback, callback-generation, and no-backend billing disclosure,
-  stale Twitter login callback,
+  stale Twitter login callback and weak callback ownership,
   social-share result
   logging and motion-subtype, storyboard navigation, and protected-screen
   outlet and keyboard-shift static contracts
@@ -148,6 +148,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-15-workoutpact-stale-twitter-login-callback.md` for
   rejecting Twitter success callbacks after the login controller leaves its
   navigation lifecycle.
+- See `docs/plans/2026-06-16-workoutpact-weak-twitter-login-callback.md` for the
+  ownership boundary where the Twitter login button stays cycle-free.
+  Queued presentation callbacks capture the controller weakly.
 
 ## Contributing
 

@@ -31,7 +31,7 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let logInButton = TWTRLogInButton(logInCompletion: {
+        let logInButton = TWTRLogInButton(logInCompletion: { [weak self]
             (session: TWTRSession!, error: NSError!) in
             // play with Twitter session
             if error != nil || session == nil {
@@ -39,13 +39,15 @@ class LoginViewController: UIViewController {
             }
 
             // ensure that presentViewController happens from the main thread/queue
-            dispatch_async(dispatch_get_main_queue(), {
-                if !self.loginContextActive {
-                    return
-                }
-                if let storyboard = self.storyboard {
-                    if let controller = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
-                        self.presentViewController(controller, animated: true, completion: nil)
+            dispatch_async(dispatch_get_main_queue(), { [weak self] in
+                if let controller = self {
+                    if !controller.loginContextActive {
+                        return
+                    }
+                    if let storyboard = controller.storyboard {
+                        if let twoFactorController = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
+                            controller.presentViewController(twoFactorController, animated: true, completion: nil)
+                        }
                     }
                 }
             });

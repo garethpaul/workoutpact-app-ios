@@ -30,9 +30,9 @@ validate_login_lifecycle(BASELINE, failures)
 if failures:
     raise AssertionError("baseline login lifecycle invalid: {0}".format(failures))
 
-guard = """                if !self.loginContextActive {
-                    return
-                }
+guard = """                    if !controller.loginContextActive {
+                        return
+                    }
 """
 mutations = {
     "missing lifecycle state": mutate("missing lifecycle state", "    var loginContextActive = false\n", ""),
@@ -48,8 +48,8 @@ mutations = {
     "missing completion guard": mutate("missing completion guard", guard, ""),
     "guard after storyboard lookup": mutate(
         "guard after storyboard lookup",
-        guard + "                if let storyboard = self.storyboard {",
-        "                if let storyboard = self.storyboard {\n" + guard,
+        guard + "                    if let storyboard = controller.storyboard {",
+        "                    if let storyboard = controller.storyboard {\n" + guard,
     ),
 }
 for description, source in mutations.items():

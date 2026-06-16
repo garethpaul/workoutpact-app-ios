@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-16
+
+- Broke the Twitter login button retain cycle with weak provider and queued
+  main-thread callback captures while preserving stale-lifecycle rejection.
+
 ## 2026-06-15
 
 - Rejected successful Twitter login callbacks after the login controller is
