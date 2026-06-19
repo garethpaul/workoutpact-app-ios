@@ -13,6 +13,7 @@ import TwitterKit
 class ShakeViewController: UIViewController {
 
     var logoView: UIImageView!
+    var shareFlowInFlight = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,14 +40,21 @@ class ShakeViewController: UIViewController {
             return
         }
 
-        if self.presentedViewController != nil {
+        if shareFlowInFlight || self.presentedViewController != nil {
             return
         }
 
+        shareFlowInFlight = true
         let alert = UIAlertController(title: "Share workout", message: "Post your completed workout to Twitter?", preferredStyle: UIAlertControllerStyle.Alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-            self.presentTweetComposer()
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: { [weak self] (action) -> Void in
+            if let controller = self {
+                controller.shareFlowInFlight = false
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: { [weak self] (action) -> Void in
+            if let controller = self {
+                controller.presentTweetComposer()
+            }
         }))
         self.presentViewController(alert, animated: true, completion: nil)
     }
@@ -57,7 +65,12 @@ class ShakeViewController: UIViewController {
         composer.setText("Just finished my workout via #workoutpact")
         composer.setImage(UIImage(named: "workoutLogo"))
 
-        composer.showWithCompletion { (result) -> Void in
+        composer.showWithCompletion { [weak self] (result) -> Void in
+            dispatch_async(dispatch_get_main_queue(), { [weak self] in
+                if let controller = self {
+                    controller.shareFlowInFlight = false
+                }
+            })
         }
     }
 

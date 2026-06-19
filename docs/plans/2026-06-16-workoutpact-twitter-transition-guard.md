@@ -18,11 +18,13 @@ instantiate and present `TwoFactorViewController`.
 
 ## Requirements
 
-1. Permit at most one successful Twitter-to-two-factor transition per visible
-   login appearance.
-2. Acquire transition ownership on the main queue after controller and lifecycle
-   validation, before storyboard construction or presentation.
-3. Reset transition eligibility when the login screen appears again.
+1. Permit at most one successful Twitter-to-two-factor transition for the
+   lifetime of the login controller.
+2. Acquire transition ownership on the main queue after controller, lifecycle,
+   presentation, storyboard, and destination validation, immediately before
+   presentation.
+3. Keep transition eligibility consumed when the login screen appears again so
+   delayed duplicate callbacks cannot become valid after a modal round trip.
 4. Preserve error/cancellation behavior, weak captures, lifecycle rejection,
    storyboard identifier and cast, and main-thread presentation.
 5. Add mutation-sensitive static coverage, maintained guidance, and completed
@@ -34,17 +36,16 @@ instantiate and present `TwoFactorViewController`.
 
 **Files:** `workoutpact/LoginViewController.swift`
 
-- Track whether the current visible login context has claimed its successful
-  transition.
-- Reset that state in `viewWillAppear`.
-- Reject a second successful main-queue completion and claim ownership before
-  instantiating or presenting the destination controller.
+- Track whether the login controller has claimed its successful transition.
+- Do not reset that state in `viewWillAppear`.
+- Reject a second successful main-queue completion, validate the destination,
+  and claim ownership immediately before presentation.
 
 **Test scenarios:**
 
 - First successful callback in an active context claims and presents.
 - A second queued success in the same appearance returns before storyboard work.
-- Reappearance resets the guard and allows a later successful login.
+- Reappearance preserves the guard so delayed duplicate delivery remains inert.
 - Errors, missing sessions, dismissed contexts, and deallocated controllers
   remain inert.
 

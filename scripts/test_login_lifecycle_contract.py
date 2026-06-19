@@ -38,8 +38,13 @@ transition_guard = """                    if controller.loginTransitionInFlight 
                         return
                     }
 """
-transition_claim = "                    controller.loginTransitionInFlight = true\n"
+presentation_guard = """                    if controller.presentedViewController != nil {
+                        return
+                    }
+"""
+transition_claim = "                            controller.loginTransitionInFlight = true\n"
 storyboard_lookup = "                    if let storyboard = controller.storyboard {"
+destination_lookup = '                        if let twoFactorController = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {'
 mutations = {
     "missing lifecycle state": mutate("missing lifecycle state", "    var loginContextActive = false\n", ""),
     "missing activation": mutate("missing activation", "        loginContextActive = true\n", ""),
@@ -54,8 +59,8 @@ mutations = {
     "missing completion guard": mutate("missing completion guard", guard, ""),
     "guard after storyboard lookup": mutate(
         "guard after storyboard lookup",
-        guard + transition_guard + transition_claim + storyboard_lookup,
-        transition_guard + transition_claim + storyboard_lookup + "\n" + guard,
+        guard + transition_guard + presentation_guard + storyboard_lookup,
+        transition_guard + presentation_guard + storyboard_lookup + "\n" + guard,
     ),
 }
 for description, source in mutations.items():
@@ -79,7 +84,11 @@ if transition_failures:
 
 transition_mutations = {
     "missing transition state": mutate("missing transition state", "    var loginTransitionInFlight = false\n", ""),
-    "missing transition reset": mutate("missing transition reset", "        loginTransitionInFlight = false\n", ""),
+    "reset transition on resume": mutate(
+        "reset transition on resume",
+        "        loginContextActive = true\n",
+        "        loginContextActive = true\n        loginTransitionInFlight = false\n",
+    ),
     "missing transition guard": mutate("missing transition guard", transition_guard, ""),
     "missing transition claim": mutate(
         "missing transition claim",
@@ -88,13 +97,18 @@ transition_mutations = {
     ),
     "claim before lifecycle guard": mutate(
         "claim before lifecycle guard",
-        guard + transition_guard + transition_claim,
-        transition_claim + guard + transition_guard,
+        guard + transition_guard + presentation_guard,
+        presentation_guard + guard + transition_guard,
     ),
-    "claim after storyboard lookup": mutate(
-        "claim after storyboard lookup",
-        transition_claim + storyboard_lookup,
-        storyboard_lookup + "\n                        controller.loginTransitionInFlight = true",
+    "claim before destination lookup": mutate(
+        "claim before destination lookup",
+        destination_lookup + "\n" + transition_claim.rstrip(),
+        transition_claim.rstrip() + "\n" + destination_lookup,
+    ),
+    "claim after presentation": mutate(
+        "claim after presentation",
+        transition_claim + "                            controller.presentViewController",
+        "                            controller.presentViewController" + "\n" + transition_claim.rstrip(),
     ),
 }
 for description, source in transition_mutations.items():

@@ -85,7 +85,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 - `workoutpact/Info.plist` contains placeholder URL scheme metadata only. Replace placeholder Twitter/Digits/Fabric values locally when running the legacy prototype, and do not commit real credentials.
-- `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure a real `pk_` publishable key locally and keep billing disabled unless a backend contract and tests exist.
+- `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure only a `pk_test_` publishable key locally; this retired prototype rejects live-mode keys and keeps billing disabled unless a backend contract and tests exist.
 - Successful tokenization must disclose that no donation or charge exists and
   require explicit continuation without billing.
 - Stripe tokenization requests and completions must not present billing UI
@@ -95,6 +95,12 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 - The shake-to-share flow should gate on the delivered motion subtype before
   presenting the confirmation prompt.
+- Successful Twitter login, Digits verification, Stripe tokenization, and
+  shake-to-share flows each reserve one transition so duplicate provider or UI
+  callbacks cannot repeat protected navigation, billing UI, or composition.
+- Billing remains disabled; any future backend must validate
+  server-authoritative integer minor units and an explicit ISO 4217 currency
+  allowlist.
 
 ## Security and Privacy Notes
 
@@ -151,8 +157,10 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-16-workoutpact-weak-twitter-login-callback.md` for the
   ownership boundary where the Twitter login button stays cycle-free.
   Queued presentation callbacks capture the controller weakly.
-- Keep the single Twitter login transition guard so duplicate successful
-  callbacks cannot present multiple phone-verification screens.
+- See `docs/plans/2026-06-19-workoutpact-async-flow-safety-review.md` for the
+  exactly-once payment, Digits, Twitter, and sharing callback boundaries.
+- Keep the single Twitter login transition guard consumed across resumed
+  appearances so duplicate success cannot present another verification screen.
 
 ## Contributing
 

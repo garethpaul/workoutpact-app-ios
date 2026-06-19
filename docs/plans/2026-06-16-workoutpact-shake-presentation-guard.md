@@ -29,16 +29,18 @@ attempt overlapping modal presentation.
 
 ## Implementation
 
-1. Return from `motionEnded` when `presentedViewController` is non-nil.
-2. Require the ownership guard after motion validation and before alert
-   construction.
-3. Add focused mutations for a missing, inverted, or late ownership guard.
-4. Synchronize repository guidance and completed verification evidence.
+1. Return from `motionEnded` when a share flow is already reserved or
+   `presentedViewController` is non-nil.
+2. Reserve the share flow after motion validation and before alert construction.
+3. Release the reservation only on explicit cancellation or Twitter composer
+   completion.
+4. Add focused mutations for a missing, inverted, late, or unclaimed guard.
+5. Synchronize repository guidance and completed verification evidence.
 
 ## Verification
 
 - The pre-change shake handler failed the new focused contract.
-- All four shake-presentation mutations were rejected.
+- All five shake-presentation mutations were rejected.
 - Repository and external-directory `make check` passed; Linux reported
   `xcodebuild unavailable` and truthfully skipped the legacy native build.
 - Exact-path diff, generated-artifact and credential-pattern audits passed,

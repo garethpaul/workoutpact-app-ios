@@ -1,11 +1,27 @@
 # Changes
 
+## 2026-06-19
+
+- Reserved Stripe tokenization and Digits authentication before provider calls,
+  rejected duplicate completions, and weakly owned their callbacks.
+- Kept successful Twitter transition ownership consumed across resumed login
+  appearances and claimed it only after the two-factor destination exists.
+- Reserved the complete shake confirmation/composer flow until cancel or
+  provider completion so presentation transitions cannot overlap.
+- Restricted Stripe configuration to non-empty test-mode `pk_test_` values
+  without embedded whitespace, rejected live-mode keys, and documented
+  server-authoritative amount and ISO 4217 currency validation for any future
+  billing backend.
+- Added ten mutation-sensitive async-flow contracts to the portable gate.
+
 ## 2026-06-16
 
 - Rejected overlapping shake confirmation while the workout controller already
-  presents another modal view.
+  presents another modal view; the June 19 flow reservation extends this across
+  alert dismissal and Twitter composer presentation.
 - Added a single Twitter login transition guard so duplicate successful
-  callbacks cannot present multiple two-factor screens from one appearance.
+  callbacks cannot present multiple two-factor screens from one appearance;
+  the June 19 guard remains consumed after the login screen resumes.
 - Broke the Twitter login button retain cycle with weak provider and queued
   main-thread callback captures while preserving stale-lifecycle rejection.
 

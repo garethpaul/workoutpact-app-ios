@@ -20,7 +20,6 @@ class LoginViewController: UIViewController {
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         loginContextActive = true
-        loginTransitionInFlight = false
     }
 
     override func viewWillDisappear(animated: Bool) {
@@ -49,9 +48,12 @@ class LoginViewController: UIViewController {
                     if controller.loginTransitionInFlight {
                         return
                     }
-                    controller.loginTransitionInFlight = true
+                    if controller.presentedViewController != nil {
+                        return
+                    }
                     if let storyboard = controller.storyboard {
                         if let twoFactorController = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
+                            controller.loginTransitionInFlight = true
                             controller.presentViewController(twoFactorController, animated: true, completion: nil)
                         }
                     }

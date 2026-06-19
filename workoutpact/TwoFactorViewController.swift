@@ -14,6 +14,7 @@ class TwoFactorViewController: UIViewController {
 
     var authenticationContextActive = false
     var authenticationGeneration = 0
+    var authenticationRequestInFlight = false
 
     @IBAction func enableTwoFactor(sender: AnyObject) {
         twoFactor()
@@ -34,12 +35,13 @@ class TwoFactorViewController: UIViewController {
         if self.isBeingDismissed() || self.isMovingFromParentViewController() {
             authenticationGeneration += 1
             authenticationContextActive = false
+            authenticationRequestInFlight = false
         }
     }
 
 
     func twoFactor() {
-        if !authenticationContextActive {
+        if !authenticationContextActive || authenticationRequestInFlight {
             return
         }
 
@@ -51,19 +53,22 @@ class TwoFactorViewController: UIViewController {
 
         // Start the authentication flow with the custom appearance. Nil parameters for default values.
         let digits = Digits.sharedInstance()
+        authenticationGeneration += 1
         let authenticationRequestGeneration = authenticationGeneration
-        digits.authenticateWithDigitsAppearance(digitsAppearance, viewController: nil, title: "Two Factor Authentication") { (session, error) in
-            // Inspect session/error objects
-            if error != nil || session == nil {
-                return
-            }
+        authenticationRequestInFlight = true
+        digits.authenticateWithDigitsAppearance(digitsAppearance, viewController: nil, title: "Two Factor Authentication") { [weak self] (session, error) in
+            dispatch_async(dispatch_get_main_queue(), { [weak self] in
+                if let controller = self {
+                    if authenticationRequestGeneration != controller.authenticationGeneration || !controller.authenticationContextActive || !controller.authenticationRequestInFlight {
+                        return
+                    }
+                    if error != nil || session == nil {
+                        controller.authenticationRequestInFlight = false
+                        return
+                    }
 
-            dispatch_async(dispatch_get_main_queue(), {
-                if authenticationRequestGeneration != self.authenticationGeneration || !self.authenticationContextActive {
-                    return
+                    controller.performSegueWithIdentifier("protected", sender: controller)
                 }
-
-                self.performSegueWithIdentifier("protected", sender: self)
             })
         }
     }

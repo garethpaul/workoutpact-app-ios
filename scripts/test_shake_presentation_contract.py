@@ -8,7 +8,8 @@ from check_workoutpact_contracts import validate_shake_presentation
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "workoutpact/ShakeViewContorller.swift"
-GUARD = "        if self.presentedViewController != nil {\n            return\n        }\n"
+GUARD = "        if shareFlowInFlight || self.presentedViewController != nil {\n            return\n        }\n"
+CLAIM = "        shareFlowInFlight = true\n"
 ALERT = '        let alert = UIAlertController(title: "Share workout", message: "Post your completed workout to Twitter?", preferredStyle: UIAlertControllerStyle.Alert)'
 PRESENTATION = "        self.presentViewController(alert, animated: true, completion: nil)"
 
@@ -32,10 +33,11 @@ def main():
     mutations = {
         "missing guard": baseline.replace(GUARD, "", 1),
         "inverted guard": baseline.replace(
-            "if self.presentedViewController != nil",
-            "if self.presentedViewController == nil",
+            "if shareFlowInFlight || self.presentedViewController != nil",
+            "if !shareFlowInFlight && self.presentedViewController == nil",
             1,
         ),
+        "missing claim": baseline.replace(CLAIM, "", 1),
         "guard after alert construction": baseline.replace(GUARD, "", 1).replace(
             ALERT,
             ALERT + "\n\n" + GUARD.rstrip(),
