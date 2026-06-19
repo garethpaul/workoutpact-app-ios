@@ -14,7 +14,9 @@ import TwitterKit
 func configuredStripePublishableKey() -> String? {
     if let key = NSBundle.mainBundle().objectForInfoDictionaryKey("StripePublishableKey") as? String {
         let trimmedKey = key.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-        if count(trimmedKey) > 0 && trimmedKey.hasPrefix("pk_") {
+        let hasValidPrefix = trimmedKey.hasPrefix("pk_test_")
+        let hasNoEmbeddedWhitespace = trimmedKey.rangeOfCharacterFromSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) == nil
+        if count(trimmedKey) > 8 && hasValidPrefix && hasNoEmbeddedWhitespace {
             return trimmedKey
         }
     }

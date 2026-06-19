@@ -54,6 +54,13 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
+This is an archival Swift 1-era project targeting iOS 8.3. Its lockfile retains
+Stripe 4.0.3 and PaymentKit 1.1.1, and it vendors retired Fabric, DigitsKit,
+TwitterCore, and TwitterKit binaries. It is not expected to build unchanged
+with a current iOS SDK. Follow the staged dependency, payment, Swift, and device
+verification sequence in
+`docs/plans/2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md`.
+
 - `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - Protected-screen contracts require any active keyboard offset to be restored
   before navigation removes keyboard observers.
@@ -62,10 +69,12 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   cancellation, and manual dispatch; Linux runners intentionally skip the
   Xcode build pending the Swift and retired-SDK migration.
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
-  payment input, payment-button, payment-key, payment-error logging, and
-  no-backend billing disclosure, social-share result logging and motion-subtype,
-  storyboard navigation, and protected-screen outlet and keyboard-shift static
-  contracts
+  payment input, payment-button, payment-key, payment-error logging, stale
+  payment callback, callback-generation, and no-backend billing disclosure,
+  stale Twitter login callback and weak callback ownership,
+  social-share result logging, motion-subtype, and overlapping shake confirmation,
+  storyboard navigation, and protected-screen
+  outlet and keyboard-shift static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
@@ -76,12 +85,22 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 - `workoutpact/Info.plist` contains placeholder URL scheme metadata only. Replace placeholder Twitter/Digits/Fabric values locally when running the legacy prototype, and do not commit real credentials.
-- `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure a real `pk_` publishable key locally and keep billing disabled unless a backend contract and tests exist.
+- `workoutpact/Info.plist` contains an empty `StripePublishableKey` placeholder. Configure only a `pk_test_` publishable key locally; this retired prototype rejects live-mode keys and keeps billing disabled unless a backend contract and tests exist.
 - Successful tokenization must disclose that no donation or charge exists and
   require explicit continuation without billing.
+- Stripe tokenization requests and completions must not present billing UI
+  after the payment screen has been covered.
+- Stale Stripe completions must return before re-enabling the payment button or
+  handling an obsolete tokenization failure.
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 - The shake-to-share flow should gate on the delivered motion subtype before
   presenting the confirmation prompt.
+- Successful Twitter login, Digits verification, Stripe tokenization, and
+  shake-to-share flows each reserve one transition so duplicate provider or UI
+  callbacks cannot repeat protected navigation, billing UI, or composition.
+- Billing remains disabled; any future backend must validate
+  server-authoritative integer minor units and an explicit ISO 4217 currency
+  allowlist.
 
 ## Security and Privacy Notes
 
@@ -126,6 +145,22 @@ When the required SDK or runtime is unavailable, use static checks and source re
   explicit no-charge disclosure and root-independent verification contract.
 - See `docs/plans/2026-06-10-workoutpact-keyboard-lifecycle-reset.md` for
   protected-screen keyboard restoration during navigation.
+- See `docs/plans/2026-06-13-workoutpact-stale-payment-callback.md` for rejecting
+  tokenization work after the payment screen is covered.
+- See `docs/plans/2026-06-13-workoutpact-callback-generation-guards.md` for
+  rejecting pre-dismissal Stripe and Digits callbacks after reappearance.
+- See `docs/plans/2026-06-14-workoutpact-stale-payment-ui-state.md` for rejecting
+  stale Stripe completions before any completion-side UI or error handling.
+- See `docs/plans/2026-06-15-workoutpact-stale-twitter-login-callback.md` for
+  rejecting Twitter success callbacks after the login controller leaves its
+  navigation lifecycle.
+- See `docs/plans/2026-06-16-workoutpact-weak-twitter-login-callback.md` for the
+  ownership boundary where the Twitter login button stays cycle-free.
+  Queued presentation callbacks capture the controller weakly.
+- See `docs/plans/2026-06-19-workoutpact-async-flow-safety-review.md` for the
+  exactly-once payment, Digits, Twitter, and sharing callback boundaries.
+- Keep the single Twitter login transition guard consumed across resumed
+  appearances so duplicate success cannot present another verification screen.
 
 ## Contributing
 

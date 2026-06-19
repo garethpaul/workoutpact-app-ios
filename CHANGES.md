@@ -1,10 +1,59 @@
 # Changes
 
+## 2026-06-19
+
+- Reserved Stripe tokenization and Digits authentication before provider calls,
+  rejected duplicate completions, and weakly owned their callbacks.
+- Kept successful Twitter transition ownership consumed across resumed login
+  appearances and claimed it only after the two-factor destination exists.
+- Reserved the complete shake confirmation/composer flow until cancel or
+  provider completion so presentation transitions cannot overlap.
+- Restricted Stripe configuration to non-empty test-mode `pk_test_` values
+  without embedded whitespace, rejected live-mode keys, and documented
+  server-authoritative amount and ISO 4217 currency validation for any future
+  billing backend.
+- Added ten mutation-sensitive async-flow contracts to the portable gate.
+
+## 2026-06-16
+
+- Rejected overlapping shake confirmation while the workout controller already
+  presents another modal view; the June 19 flow reservation extends this across
+  alert dismissal and Twitter composer presentation.
+- Added a single Twitter login transition guard so duplicate successful
+  callbacks cannot present multiple two-factor screens from one appearance;
+  the June 19 guard remains consumed after the login screen resumes.
+- Broke the Twitter login button retain cycle with weak provider and queued
+  main-thread callback captures while preserving stale-lifecycle rejection.
+
+## 2026-06-15
+
+- Rejected successful Twitter login callbacks after the login controller is
+  dismissed or removed, before storyboard lookup or phone-verification UI.
+- Added lifecycle and ordering contracts for stale Twitter login completions.
+
+## 2026-06-14
+
+- Moved the Stripe generation and visibility guard ahead of payment-button and
+  tokenization-error handling so stale completions cannot mutate current UI.
+- Added mutation-sensitive ordering coverage for the complete payment callback.
+
+## 2026-06-13
+
+- Bound Stripe and Digits requests to controller lifecycle generations so
+  pre-dismissal callbacks remain invalid after a later appearance.
+- Rejected Stripe tokenization requests and asynchronous completions after the
+  payment screen is covered, before billing UI can be presented.
+- Added portable lifecycle ordering contracts for both payment visibility
+  guards.
+
 ## 2026-06-10
 
 - Restored any active protected-screen keyboard offset before navigation
   removes observers, clearing stale visibility and height state for the next
   appearance.
+- Documented and enforced the versioned legacy SDK modernization boundary for
+  Swift 1-era syntax, iOS 8.3, Stripe 4.0.3, PaymentKit 1.1.1, and retired
+  Fabric, DigitsKit, TwitterCore, and TwitterKit SDKs.
 - Added immutable, read-only GitHub Actions verification on Python 3.10, 3.12,
   and 3.14 for the credential, payment, authentication, and sharing contracts,
   with manual dispatch for maintenance runs.

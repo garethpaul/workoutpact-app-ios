@@ -14,10 +14,25 @@ import TwitterKit
 
 class LoginViewController: UIViewController {
 
+    var loginContextActive = false
+    var loginTransitionInFlight = false
+
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        loginContextActive = true
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        if self.isBeingDismissed() || self.isMovingFromParentViewController() || self.navigationController?.isBeingDismissed() == true {
+            loginContextActive = false
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let logInButton = TWTRLogInButton(logInCompletion: {
+        let logInButton = TWTRLogInButton(logInCompletion: { [weak self]
             (session: TWTRSession!, error: NSError!) in
             // play with Twitter session
             if error != nil || session == nil {
@@ -25,10 +40,22 @@ class LoginViewController: UIViewController {
             }
 
             // ensure that presentViewController happens from the main thread/queue
-            dispatch_async(dispatch_get_main_queue(), {
-                if let storyboard = self.storyboard {
-                    if let controller = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
-                        self.presentViewController(controller, animated: true, completion: nil)
+            dispatch_async(dispatch_get_main_queue(), { [weak self] in
+                if let controller = self {
+                    if !controller.loginContextActive {
+                        return
+                    }
+                    if controller.loginTransitionInFlight {
+                        return
+                    }
+                    if controller.presentedViewController != nil {
+                        return
+                    }
+                    if let storyboard = controller.storyboard {
+                        if let twoFactorController = storyboard.instantiateViewControllerWithIdentifier("TwoFactorViewController") as? TwoFactorViewController {
+                            controller.loginTransitionInFlight = true
+                            controller.presentViewController(twoFactorController, animated: true, completion: nil)
+                        }
                     }
                 }
             });

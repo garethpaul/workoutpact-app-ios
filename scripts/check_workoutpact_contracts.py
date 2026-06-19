@@ -25,6 +25,17 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-10-workoutpact-hosted-static-verification.md",
     DOCS_PLANS / "2026-06-10-workoutpact-no-backend-billing-notice.md",
     DOCS_PLANS / "2026-06-10-workoutpact-keyboard-lifecycle-reset.md",
+    DOCS_PLANS / "2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md",
+    DOCS_PLANS / "2026-06-13-workoutpact-stale-payment-callback.md",
+    DOCS_PLANS / "2026-06-13-workoutpact-stale-digits-callback.md",
+    DOCS_PLANS / "2026-06-13-workoutpact-callback-generation-guards.md",
+    DOCS_PLANS / "2026-06-14-workoutpact-make-root-override-protection.md",
+    DOCS_PLANS / "2026-06-14-workoutpact-stale-payment-ui-state.md",
+    DOCS_PLANS / "2026-06-15-workoutpact-stale-twitter-login-callback.md",
+    DOCS_PLANS / "2026-06-16-workoutpact-weak-twitter-login-callback.md",
+    DOCS_PLANS / "2026-06-16-workoutpact-twitter-transition-guard.md",
+    DOCS_PLANS / "2026-06-16-workoutpact-shake-presentation-guard.md",
+    DOCS_PLANS / "2026-06-19-workoutpact-async-flow-safety-review.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -53,6 +64,144 @@ def require(condition, message, failures):
         failures.append(message)
 
 
+def validate_login_lifecycle(login, failures):
+    login_appearance = login.split("override func viewWillAppear", 1)[1].split(
+        "override func viewWillDisappear", 1
+    )[0]
+    login_disappearance = login.split("override func viewWillDisappear", 1)[1].split(
+        "override func viewDidLoad", 1
+    )[0]
+    login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
+        "logInButton.center", 1
+    )[0]
+    login_lifecycle_guard = "if !controller.loginContextActive"
+    login_storyboard_lookup = "if let storyboard = controller.storyboard"
+    require(
+        "var loginContextActive = false" in login
+        and "loginContextActive = true" in login_appearance
+        and "self.isBeingDismissed()" in login_disappearance
+        and "self.isMovingFromParentViewController()" in login_disappearance
+        and "self.navigationController?.isBeingDismissed() == true" in login_disappearance
+        and "loginContextActive = false" in login_disappearance,
+        "login screen lifecycle must track whether Twitter callbacks may present phone verification",
+        failures,
+    )
+    require(
+        "error != nil || session == nil" in login_completion
+        and login_lifecycle_guard in login_completion
+        and login_completion.index("error != nil || session == nil")
+        < login_completion.index("dispatch_async(dispatch_get_main_queue()")
+        < login_completion.index(login_lifecycle_guard)
+        < login_completion.index(login_storyboard_lookup)
+        < login_completion.index("controller.presentViewController"),
+        "stale Twitter success callbacks must be rejected on the main queue before presentation",
+        failures,
+    )
+
+
+def validate_login_callback_ownership(login, failures):
+    login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
+        "logInButton.center", 1
+    )[0]
+    outer_capture = "TWTRLogInButton(logInCompletion: { [weak self]"
+    dispatch_capture = "dispatch_async(dispatch_get_main_queue(), { [weak self] in"
+    promotion = "if let controller = self"
+    lifecycle_guard = "if !controller.loginContextActive"
+    storyboard_lookup = "if let storyboard = controller.storyboard"
+    presentation = "controller.presentViewController"
+    require(
+        outer_capture in login
+        and dispatch_capture in login_completion
+        and promotion in login_completion,
+        "Twitter login callbacks must capture the controller weakly and promote it only on the main queue",
+        failures,
+    )
+    require(
+        dispatch_capture in login_completion
+        and promotion in login_completion
+        and lifecycle_guard in login_completion
+        and storyboard_lookup in login_completion
+        and presentation in login_completion
+        and login_completion.index(dispatch_capture)
+        < login_completion.index(promotion)
+        < login_completion.index(lifecycle_guard)
+        < login_completion.index(storyboard_lookup)
+        < login_completion.index(presentation),
+        "weak Twitter login ownership must preserve lifecycle and presentation ordering",
+        failures,
+    )
+    require(
+        "self.loginContextActive" not in login_completion
+        and "self.storyboard" not in login_completion
+        and "self.presentViewController" not in login_completion,
+        "Twitter login completion must use only the promoted controller for UI state",
+        failures,
+    )
+
+
+def validate_login_transition(login, failures):
+    login_appearance = login.split("override func viewWillAppear", 1)[1].split(
+        "override func viewWillDisappear", 1
+    )[0]
+    login_completion = login.split("let logInButton = TWTRLogInButton", 1)[1].split(
+        "logInButton.center", 1
+    )[0]
+    lifecycle_guard = "if !controller.loginContextActive"
+    transition_guard = "if controller.loginTransitionInFlight"
+    presentation_guard = "if controller.presentedViewController != nil"
+    transition_claim = "controller.loginTransitionInFlight = true"
+    storyboard_lookup = "if let storyboard = controller.storyboard"
+    destination_lookup = 'instantiateViewControllerWithIdentifier("TwoFactorViewController")'
+    require(
+        "var loginTransitionInFlight = false" in login
+        and "loginTransitionInFlight = false" not in login_appearance,
+        "Twitter login transition ownership must remain consumed across resumed appearances",
+        failures,
+    )
+    require(
+        lifecycle_guard in login_completion
+        and transition_guard in login_completion
+        and presentation_guard in login_completion
+        and transition_claim in login_completion
+        and storyboard_lookup in login_completion
+        and destination_lookup in login_completion
+        and login_completion.index(lifecycle_guard)
+        < login_completion.index(transition_guard)
+        < login_completion.index(presentation_guard)
+        < login_completion.index(storyboard_lookup)
+        < login_completion.index(destination_lookup)
+        < login_completion.index(transition_claim)
+        < login_completion.index("controller.presentViewController"),
+        "Twitter login success must validate its destination before claiming exactly one presentation",
+        failures,
+    )
+
+
+def validate_shake_presentation(shake, failures):
+    handler = shake.split("override func motionEnded", 1)[1].split(
+        "func presentTweetComposer", 1
+    )[0]
+    motion_guard = "if motion != UIEventSubtype.MotionShake"
+    presentation_guard = "if shareFlowInFlight || self.presentedViewController != nil"
+    presentation_claim = "shareFlowInFlight = true"
+    alert_construction = "let alert = UIAlertController"
+    alert_presentation = "self.presentViewController(alert"
+    require(
+        motion_guard in handler
+        and presentation_guard in handler
+        and presentation_claim in handler
+        and alert_construction in handler
+        and alert_presentation in handler
+        and handler.index(motion_guard)
+        < handler.index(presentation_guard)
+        < handler.index(presentation_claim)
+        < handler.index(alert_construction)
+        < handler.index(alert_presentation),
+        "shake confirmation must reserve one share flow before constructing its alert",
+        failures,
+    )
+
+
 def plist_url_schemes(plist):
     schemes = []
     for entry in plist.get("CFBundleURLTypes", []):
@@ -73,6 +222,11 @@ def main():
     payment = read_text("workoutpact/PaymentViewController.swift")
     shake = read_text("workoutpact/ShakeViewContorller.swift")
     workout = read_text("workoutpact/ViewController.swift")
+    podfile_lock = read_text("Podfile.lock")
+    readme = read_text("README.md")
+    security = read_text("SECURITY.md")
+    vision = read_text("VISION.md")
+    changes = read_text("CHANGES.md")
     workflow = read_text(".github/workflows/check.yml") if WORKFLOW.is_file() else ""
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.is_dir() else []
 
@@ -164,8 +318,11 @@ def main():
         failures,
     )
     require(
-        'hasPrefix("pk_")' in app_delegate,
-        "Stripe publishable key loader must validate configured values as pk_* keys",
+        'hasPrefix("pk_test_")' in app_delegate
+        and 'pk_live_' not in app_delegate
+        and "rangeOfCharacterFromSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) == nil"
+        in app_delegate,
+        "Stripe publishable key loader must enforce test mode and reject embedded whitespace",
         failures,
     )
     require(
@@ -179,16 +336,37 @@ def main():
         failures,
     )
     require(
-        "if let storyboard = self.storyboard" in login,
+        "if let storyboard = controller.storyboard" in login,
         "Twitter login must guard storyboard lookup before presenting phone verification",
         failures,
     )
+    documentation = {
+        "README.md": "Queued presentation callbacks capture the controller weakly",
+        "SECURITY.md": "Twitter login callbacks use weak controller ownership",
+        "VISION.md": "Keep Twitter login callbacks weakly owned",
+        "CHANGES.md": "Broke the Twitter login button retain cycle",
+    }
+    for document_name, phrase in documentation.items():
+        require(
+            phrase in read_text(document_name),
+            f"{document_name} must document weak Twitter login callback ownership",
+            failures,
+        )
+    for document_name in ("README.md", "SECURITY.md", "VISION.md", "CHANGES.md"):
+        require(
+            "single twitter login transition" in read_text(document_name).lower(),
+            f"{document_name} must document the single Twitter login transition guard",
+            failures,
+        )
     require(
         "as! TwoFactorViewController" not in login
         and "as? TwoFactorViewController" in login,
         "Twitter login must safely cast the phone verification controller",
         failures,
     )
+    validate_login_lifecycle(login, failures)
+    validate_login_callback_ownership(login, failures)
+    validate_login_transition(login, failures)
     require(
         "error != nil || session == nil" in two_factor,
         "Digits verification must not advance to protected content on cancelled or failed verification",
@@ -199,6 +377,64 @@ def main():
         "Digits verification must perform protected segue on the main queue",
         failures,
     )
+    authentication_request = two_factor.split("func twoFactor()", 1)[1].split(
+        "override func didReceiveMemoryWarning", 1
+    )[0]
+    authentication_appearance = two_factor.split(
+        "override func viewWillAppear", 1
+    )[1].split("override func viewWillDisappear", 1)[0]
+    authentication_disappearance = two_factor.split(
+        "override func viewWillDisappear", 1
+    )[1].split("func twoFactor()", 1)[0]
+    authentication_request_guard = "if !authenticationContextActive"
+    authentication_completion_guard = "!controller.authenticationContextActive"
+    authentication_call = "digits.authenticateWithDigitsAppearance"
+    protected_segue = 'controller.performSegueWithIdentifier("protected", sender: controller)'
+    require(
+        "var authenticationContextActive = false" in two_factor
+        and "authenticationContextActive = true" in authentication_appearance
+        and "self.isBeingDismissed()" in authentication_disappearance
+        and "self.isMovingFromParentViewController()" in authentication_disappearance
+        and "authenticationContextActive = false" in authentication_disappearance
+        and authentication_disappearance.index("self.isBeingDismissed()")
+        < authentication_disappearance.index("authenticationContextActive = false"),
+        "two-factor screen lifecycle must track whether callbacks may reveal protected content",
+        failures,
+    )
+    require(
+        authentication_request_guard in authentication_request
+        and authentication_request.index(authentication_request_guard)
+        < authentication_request.index(authentication_call),
+        "inactive two-factor screens must be rejected before Digits authentication",
+        failures,
+    )
+    require(
+        authentication_completion_guard in authentication_request
+        and authentication_request.index("dispatch_async(dispatch_get_main_queue()")
+        < authentication_request.index(authentication_completion_guard)
+        < authentication_request.index("error != nil || session == nil")
+        < authentication_request.index(protected_segue),
+        "stale Digits success callbacks must be rejected on the main queue before the protected segue",
+        failures,
+    )
+    require(
+        "var authenticationGeneration = 0" in two_factor
+        and "authenticationGeneration += 1" in authentication_disappearance
+        and authentication_disappearance.index("authenticationGeneration += 1")
+        < authentication_disappearance.index("authenticationContextActive = false"),
+        "two-factor dismissal must invalidate the prior authentication generation",
+        failures,
+    )
+    require(
+        "let authenticationRequestGeneration = authenticationGeneration" in authentication_request
+        and authentication_request.index("let authenticationRequestGeneration = authenticationGeneration")
+        < authentication_request.index(authentication_call)
+        and "authenticationRequestGeneration != controller.authenticationGeneration" in authentication_request
+        and authentication_request.index("authenticationRequestGeneration != controller.authenticationGeneration")
+        < authentication_request.index(protected_segue),
+        "Digits completion must reject requests from a prior controller generation",
+        failures,
+    )
     require(
         "payButton!.enabled" not in payment,
         "payment button state updates must not force-unwrap payButton",
@@ -207,8 +443,8 @@ def main():
     require(
         "if let button = payButton" in payment
         and "button.enabled = false" in payment
-        and "button.enabled = valid" in payment
-        and "if let button = self.payButton" in payment
+        and "button.enabled = valid && !paymentFlowInFlight" in payment
+        and "if let button = controller.payButton" in payment
         and "button.enabled = true" in payment,
         "payment submit button state must be guarded while preserving validation and token callback behavior",
         failures,
@@ -255,6 +491,59 @@ def main():
         "payment token callback must return to the main queue before UI updates",
         failures,
     )
+    payment_request = payment.split("func createToken()", 1)[1].split(
+        "func handleToken", 1
+    )[0]
+    appearance_method = payment.split("override func viewWillAppear", 1)[1].split(
+        "override func viewWillDisappear", 1
+    )[0]
+    disappearance_method = payment.split("override func viewWillDisappear", 1)[1].split(
+        "func paymentView", 1
+    )[0]
+    lifecycle_guard = "if !paymentViewVisible || paymentFlowInFlight"
+    completion_guard = "!controller.paymentViewVisible"
+    require(
+        "paymentViewVisible = true" in appearance_method
+        and "paymentViewVisible = false" in disappearance_method,
+        "payment screen lifecycle must track whether callbacks may present UI",
+        failures,
+    )
+    require(
+        lifecycle_guard in payment_request
+        and payment_request.index(lifecycle_guard)
+        < payment_request.index("STPAPIClient.sharedClient().createTokenWithCard"),
+        "inactive payment screens must be rejected before Stripe tokenization",
+        failures,
+    )
+    require(
+        "paymentRequestGeneration != controller.paymentGeneration" in payment_request
+        and completion_guard in payment_request
+        and "!controller.paymentFlowInFlight" in payment_request
+        and payment_request.index("dispatch_async(dispatch_get_main_queue()")
+        < payment_request.index("paymentRequestGeneration != controller.paymentGeneration")
+        < payment_request.index("error != nil || token == nil")
+        < payment_request.index("controller.handleToken(token)"),
+        "stale Stripe completions must be rejected before button, error, or billing UI handling",
+        failures,
+    )
+    require(
+        "var paymentGeneration = 0" in payment
+        and "paymentGeneration += 1" in disappearance_method
+        and disappearance_method.index("paymentGeneration += 1")
+        < disappearance_method.index("paymentViewVisible = false"),
+        "payment disappearance must invalidate the prior tokenization generation",
+        failures,
+    )
+    require(
+        "let paymentRequestGeneration = paymentGeneration" in payment_request
+        and payment_request.index("let paymentRequestGeneration = paymentGeneration")
+        < payment_request.index("STPAPIClient.sharedClient().createTokenWithCard")
+        and "paymentRequestGeneration != controller.paymentGeneration" in payment_request
+        and payment_request.index("paymentRequestGeneration != controller.paymentGeneration")
+        < payment_request.index("controller.handleToken(token)"),
+        "Stripe completion must reject requests from a prior payment generation",
+        failures,
+    )
     require(
         "create charge" not in payment.lower(),
         "payment comments must not imply the prototype creates charges",
@@ -279,9 +568,9 @@ def main():
     )
     require(
         'self.presentViewController(alert, animated: true, completion: nil)' in token_handler
-        and 'self.performSegueWithIdentifier("shake", sender: self)' in token_handler
+        and 'controller.performSegueWithIdentifier("shake", sender: controller)' in token_handler
         and token_handler.index('title: "Continue without billing"')
-        < token_handler.index('self.performSegueWithIdentifier("shake", sender: self)')
+        < token_handler.index('controller.performSegueWithIdentifier("shake", sender: controller)')
         < token_handler.index('self.presentViewController(alert, animated: true, completion: nil)'),
         "payment segue must be scoped to the explicit no-billing continuation action",
         failures,
@@ -301,6 +590,7 @@ def main():
         "shake sharing must use the delivered motion subtype before presenting confirmation",
         failures,
     )
+    validate_shake_presentation(shake, failures)
     require(
         "println(" not in shake
         and "Tweet composition cancelled" not in shake
@@ -398,6 +688,50 @@ def main():
         "logout navigation must safely cast the login controller",
         failures,
     )
+    require(
+        project.count("IPHONEOS_DEPLOYMENT_TARGET = 8.3;") >= 2,
+        "project must retain the documented iOS 8.3 archival deployment target",
+        failures,
+    )
+    require(
+        "PaymentKit (1.1.1)" in podfile_lock and "Stripe (4.0.3)" in podfile_lock,
+        "Podfile.lock must match the documented PaymentKit 1.1.1 and Stripe 4.0.3 boundary",
+        failures,
+    )
+    retired_frameworks = [
+        "Fabric.framework",
+        "DigitsKit.framework",
+        "TwitterCore.framework",
+        "TwitterKit.framework",
+    ]
+    missing_frameworks = [name for name in retired_frameworks if not (ROOT / name).is_dir()]
+    require(
+        not missing_frameworks,
+        "documented retired frameworks are missing: " + ", ".join(missing_frameworks),
+        failures,
+    )
+    boundary_terms = [
+        "iOS 8.3",
+        "Stripe 4.0.3",
+        "PaymentKit 1.1.1",
+        "Fabric",
+        "DigitsKit",
+        "TwitterCore",
+        "TwitterKit",
+    ]
+    for document_name, document in [
+        ("README.md", readme),
+        ("SECURITY.md", security),
+        ("VISION.md", vision),
+        ("CHANGES.md", changes),
+    ]:
+        missing_terms = [term for term in boundary_terms if term not in document]
+        require(
+            not missing_terms,
+            f"{document_name} must document the legacy SDK boundary: "
+            + ", ".join(missing_terms),
+            failures,
+        )
     require(WORKFLOW.is_file(), "hosted verification workflow must exist", failures)
     require(
         "permissions:\n  contents: read" in workflow,
@@ -439,14 +773,28 @@ def main():
     )
     require("ubuntu-latest" not in workflow, "hosted verification must not use a floating runner", failures)
     makefile = MAKEFILE.read_text(encoding="utf-8")
+    makefile_lines = set(makefile.splitlines())
     require(
-        "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))" in makefile,
-        "Makefile must resolve the repository root",
+        "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))" in makefile_lines,
+        "Makefile must protect the repository root",
         failures,
     )
+    require("PYTHON ?= python3" in makefile_lines, "Makefile must preserve the Python command override", failures)
     require(
         "CHECK_SCRIPT := $(ROOT)/scripts/check_workoutpact_contracts.py" in makefile,
         "Makefile must use the rooted checker path",
+        failures,
+    )
+    require(
+        "LOGIN_OWNERSHIP_CONTRACT_SCRIPT := $(ROOT)/scripts/test_login_callback_ownership_contract.py" in makefile
+        and '$(PYTHON) "$(LOGIN_OWNERSHIP_CONTRACT_SCRIPT)"' in makefile,
+        "Makefile must register the rooted Twitter login ownership mutation gate",
+        failures,
+    )
+    require(
+        "SHAKE_PRESENTATION_CONTRACT_SCRIPT := $(ROOT)/scripts/test_shake_presentation_contract.py" in makefile
+        and '$(PYTHON) "$(SHAKE_PRESENTATION_CONTRACT_SCRIPT)"' in makefile,
+        "Makefile must register the rooted shake-presentation mutation gate",
         failures,
     )
     require(
@@ -472,6 +820,35 @@ def main():
             failures,
         )
         require("make check" in text, f"{plan.relative_to(ROOT)} must document make check verification", failures)
+
+    transition_plan = read_text("docs/plans/2026-06-16-workoutpact-twitter-transition-guard.md")
+    require(
+        "Status: Completed" in transition_plan
+        and "14 lifecycle mutations were rejected" in transition_plan
+        and "Repository and external-directory `make check` passed" in transition_plan
+        and "generated-artifact and credential-pattern audits passed" in transition_plan,
+        "Twitter transition guard plan must record completed verification evidence",
+        failures,
+    )
+
+    shake_presentation_plan = read_text(
+        "docs/plans/2026-06-16-workoutpact-shake-presentation-guard.md"
+    )
+    require(
+        "Status: Completed" in shake_presentation_plan
+        and "five shake-presentation mutations were rejected" in shake_presentation_plan
+        and "Repository and external-directory `make check` passed" in shake_presentation_plan
+        and "generated-artifact and credential-pattern audits passed" in shake_presentation_plan,
+        "shake presentation guard plan must record completed verification evidence",
+        failures,
+    )
+
+    for doc in ("README.md", "SECURITY.md", "VISION.md", "CHANGES.md"):
+        require(
+            "overlapping shake confirmation" in read_text(doc).lower(),
+            f"{doc} must document the overlapping shake confirmation guard",
+            failures,
+        )
 
     if failures:
         print("WorkoutPact contract check failed:")

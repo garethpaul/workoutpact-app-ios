@@ -13,6 +13,9 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
     var payButton: UIBarButtonItem?
     var paymentView: PTKView?
+    var paymentViewVisible = false
+    var paymentGeneration = 0
+    var paymentFlowInFlight = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,13 +35,29 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        paymentViewVisible = true
+        paymentFlowInFlight = false
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        paymentGeneration += 1
+        paymentViewVisible = false
+    }
+
     func paymentView(paymentView: PTKView!, withCard card: PTKCard!, isValid valid: Bool) {
         if let button = payButton {
-            button.enabled = valid
+            button.enabled = valid && !paymentFlowInFlight
         }
     }
 
     func createToken() {
+        if !paymentViewVisible || paymentFlowInFlight {
+            return
+        }
+
         if let paymentInput = paymentView {
             if paymentInput.card == nil {
                 NSLog("Payment card input is not ready for tokenization.")
@@ -51,6 +70,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
             }
 
             let paymentCard = paymentInput.card
+            paymentFlowInFlight = true
             if let button = payButton {
                 button.enabled = false
             }
@@ -60,18 +80,25 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
             card.expMonth = paymentCard.expMonth
             card.expYear = paymentCard.expYear
             card.cvc = paymentCard.cvc
+            let paymentRequestGeneration = paymentGeneration
 
-            STPAPIClient.sharedClient().createTokenWithCard(card, completion: { (token, error) -> Void in
-                dispatch_async(dispatch_get_main_queue(), {
-                    if let button = self.payButton {
-                        button.enabled = true
-                    }
-                    if error != nil || token == nil {
-                        NSLog("Stripe tokenization failed.")
-                        return
-                    }
+            STPAPIClient.sharedClient().createTokenWithCard(card, completion: { [weak self] (token, error) -> Void in
+                dispatch_async(dispatch_get_main_queue(), { [weak self] in
+                    if let controller = self {
+                        if paymentRequestGeneration != controller.paymentGeneration || !controller.paymentViewVisible || !controller.paymentFlowInFlight {
+                            return
+                        }
+                        if error != nil || token == nil {
+                            controller.paymentFlowInFlight = false
+                            if let button = controller.payButton {
+                                button.enabled = true
+                            }
+                            NSLog("Stripe tokenization failed.")
+                            return
+                        }
 
-                    self.handleToken(token);
+                        controller.handleToken(token);
+                    }
                 })
             })
         } else {
@@ -83,7 +110,14 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
 
     func handleToken(token: STPToken!) {
         if token == nil {
+            paymentFlowInFlight = false
             NSLog("Stripe returned an empty token.")
+            return
+        }
+
+        if self.presentedViewController != nil {
+            paymentFlowInFlight = false
+            NSLog("Payment result UI is already being presented.")
             return
         }
 
@@ -91,9 +125,18 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
             title: "Billing unavailable",
             message: "Your card was tokenized, but no donation or charge was created.",
             preferredStyle: UIAlertControllerStyle.Alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Continue without billing", style: UIAlertActionStyle.Default, handler: { action in
-            self.performSegueWithIdentifier("shake", sender: self)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: { [weak self] action in
+            if let controller = self {
+                controller.paymentFlowInFlight = false
+                if let button = controller.payButton {
+                    button.enabled = true
+                }
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "Continue without billing", style: UIAlertActionStyle.Default, handler: { [weak self] action in
+            if let controller = self {
+                controller.performSegueWithIdentifier("shake", sender: controller)
+            }
         }))
         self.presentViewController(alert, animated: true, completion: nil)
 

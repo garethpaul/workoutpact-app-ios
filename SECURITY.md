@@ -24,6 +24,13 @@ Helpful reports include:
 
 ## Project Security Posture
 
+The archival project retains Stripe 4.0.3, PaymentKit 1.1.1, and retired
+Fabric, DigitsKit, TwitterCore, and TwitterKit binaries on an iOS 8.3 baseline.
+Passing static contracts does not make those dependencies safe on a current
+SDK. Do not use real identity, phone, card, or social-account data until the
+authentication and payment stacks have been replaced and verified on supported
+devices.
+
 - This repository appears to be an Apple platform application or Swift sample. The active security scope is the code and documentation on the default branch.
 - Review found authentication, token, or session-related code paths; changes in those areas should receive security-focused review before merge.
 - Review found external API integrations or credential-adjacent configuration; changes in those areas should receive security-focused review before merge.
@@ -34,13 +41,29 @@ Helpful reports include:
 - Review found secret-like configuration names that require careful review before use; changes in those areas should receive security-focused review before merge.
 - Social sharing should remain explicit and should not log Twitter composer
   outcomes from the workout flow.
+- Overlapping shake confirmation is rejected while the workout controller owns
+  an active confirmation/composer flow or already presents another modal.
 - Protected-screen keyboard movement should ignore duplicate show/hide
   notifications so sensitive UI does not drift off screen during text entry.
 - Stripe tokenization does not create a donation or charge in this prototype.
   The UI must disclose that boundary before continuing to workout sharing.
+- Stripe tokenization requests and asynchronous completions must recheck that
+  the payment screen is visible before starting work or presenting billing UI.
+- Stripe and Digits completions must retain their originating controller
+  generation so callbacks cannot become valid again after reappearance.
+- Billing remains disabled. Any future backend must accept only
+  server-authoritative integer minor units and validate currency against an
+  explicit ISO 4217 allowlist before creating a charge; the client must never
+  choose the charged amount or currency by itself.
 - Dependency manifests detected: Podfile, Podfile.lock. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 
 ## Mobile Privacy Notes
+
+Twitter login callbacks use weak controller ownership so a login button or
+queued presentation block cannot keep a dismissed authentication screen alive.
+The single Twitter login transition guard remains consumed across resumed
+appearances so duplicate successful callbacks cannot present another
+protected-flow entry screen.
 
 If this project requests device permissions such as location, camera, microphone, contacts, Bluetooth, health data, or local storage access, reports should describe the permission involved and whether sensitive data can be accessed, persisted, or transmitted unexpectedly. Please avoid testing against real third-party user data or accounts you do not control.
 
