@@ -79,6 +79,7 @@ additional later `-f` file are outside this trust boundary because GNU Make
 appends them after the checked-in target body. A caller still controls a bare
 `python3` through `PATH`; use an explicit reviewed interpreter path for exact
 local reproduction.
+Make syntax in an explicit `-f` path is evaluated before the repository Makefile loads. Checkout paths containing literal `$(` must be invoked from inside the checkout without an explicit Makefile path.
 
 ## Safe Research Guidelines
 
