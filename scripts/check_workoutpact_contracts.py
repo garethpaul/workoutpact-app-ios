@@ -2,8 +2,10 @@
 """Static contracts for the legacy WorkoutPact iOS project."""
 
 from pathlib import Path
+import json
 import plistlib
 import re
+import subprocess
 import sys
 
 
@@ -44,6 +46,98 @@ CHECKOUT_CREDENTIAL_ISOLATION_BLOCK = """      - name: Check out repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false"""
+CHECKOUT_ACTION = "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10"
+SETUP_PYTHON_ACTION = "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405"
+WORKFLOW_YAML_PARSER = r"""
+require "json"
+require "psych"
+
+def node_location(node)
+  if node.respond_to?(:start_line) && node.start_line
+    "line #{node.start_line + 1}, column #{node.start_column + 1}"
+  else
+    "unknown location"
+  end
+end
+
+def remember_anchor(node, value, anchors)
+  if node.respond_to?(:anchor) && node.anchor && !node.anchor.empty?
+    anchors[node.anchor] = value
+  end
+end
+
+def duplicate_safe_key(node, errors)
+  unless node.is_a?(Psych::Nodes::Scalar)
+    errors << "workflow mapping key at #{node_location(node)} is not a scalar"
+    return nil
+  end
+  node.value
+end
+
+def deep_copy(value)
+  Marshal.load(Marshal.dump(value))
+end
+
+def convert_node(node, anchors, errors)
+  case node
+  when Psych::Nodes::Document
+    return convert_node(node.root, anchors, errors)
+  when Psych::Nodes::Mapping
+    result = {}
+    remember_anchor(node, result, anchors)
+    seen = {}
+    node.children.each_slice(2) do |key_node, value_node|
+      key = duplicate_safe_key(key_node, errors)
+      next if key.nil?
+
+      normalized_key = key.downcase
+      if seen.key?(normalized_key)
+        errors << "duplicate YAML key #{key.inspect} at #{node_location(key_node)}; first seen at #{seen[normalized_key]}"
+      else
+        seen[normalized_key] = node_location(key_node)
+      end
+
+      if key == "<<"
+        errors << "YAML merge key is not supported at #{node_location(key_node)}"
+      end
+
+      result[key] = convert_node(value_node, anchors, errors)
+    end
+    result
+  when Psych::Nodes::Sequence
+    result = []
+    remember_anchor(node, result, anchors)
+    node.children.each do |child|
+      result << convert_node(child, anchors, errors)
+    end
+    result
+  when Psych::Nodes::Scalar
+    remember_anchor(node, node.value, anchors)
+    node.value
+  when Psych::Nodes::Alias
+    if anchors.key?(node.anchor)
+      deep_copy(anchors[node.anchor])
+    else
+      errors << "unknown YAML alias #{node.anchor.inspect} at #{node_location(node)}"
+      nil
+    end
+  else
+    errors << "unsupported YAML node #{node.class} at #{node_location(node)}"
+    nil
+  end
+end
+
+errors = []
+begin
+  document = Psych.parse(STDIN.read)
+  data = convert_node(document, {}, errors)
+rescue Psych::Exception => error
+  data = nil
+  errors << "workflow YAML parse failed: #{error.message}"
+end
+
+puts JSON.generate({"data" => data, "errors" => errors})
+"""
 
 
 def read_text(relative_path):
@@ -69,12 +163,138 @@ def require(condition, message, failures):
         failures.append(message)
 
 
-def checkout_credentials_are_isolated(workflow):
+def parse_workflow_yaml(workflow):
+    try:
+        parsed = subprocess.run(
+            ["ruby", "-e", WORKFLOW_YAML_PARSER],
+            input=workflow,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return None, [f"workflow YAML parser unavailable: {exc}"]
+
+    if parsed.returncode != 0:
+        detail = parsed.stderr.strip() or parsed.stdout.strip()
+        return None, [f"workflow YAML parser failed: {detail}"]
+
+    try:
+        payload = json.loads(parsed.stdout)
+    except json.JSONDecodeError as exc:
+        return None, [f"workflow YAML parser returned invalid JSON: {exc}"]
+
+    return payload.get("data"), payload.get("errors", [])
+
+
+def has_exact_keys(value, expected):
+    return isinstance(value, dict) and set(value.keys()) == set(expected)
+
+
+def normalized_mapping(value):
+    if not isinstance(value, dict):
+        return None
+    return {key.lower(): item for key, item in value.items()}
+
+
+def scalar_equals(value, expected, case_sensitive=True):
+    if not isinstance(value, str):
+        return False
+    if case_sensitive:
+        return value == expected
+    return value.lower() == expected.lower()
+
+
+def trigger_map_is_reviewed(value):
+    if not has_exact_keys(value, {"push", "pull_request", "workflow_dispatch"}):
+        return False
+    return all(value[trigger] == "" for trigger in value)
+
+
+def checkout_step_is_reviewed(step):
+    if not has_exact_keys(step, {"name", "uses", "with"}):
+        return False
+    inputs = normalized_mapping(step["with"])
     return (
-        workflow.count(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK) == 1
-        and workflow.count("actions/checkout@") == 1
-        and workflow.count("persist-credentials:") == 1
+        scalar_equals(step["name"], "Check out repository")
+        and scalar_equals(step["uses"], CHECKOUT_ACTION)
+        and inputs is not None
+        and set(inputs.keys()) == {"persist-credentials"}
+        and scalar_equals(inputs["persist-credentials"], "false", case_sensitive=False)
     )
+
+
+def setup_python_step_is_reviewed(step):
+    if not has_exact_keys(step, {"name", "uses", "with"}):
+        return False
+    inputs = normalized_mapping(step["with"])
+    return (
+        scalar_equals(step["name"], "Set up Python")
+        and scalar_equals(step["uses"], SETUP_PYTHON_ACTION)
+        and inputs is not None
+        and set(inputs.keys()) == {"python-version"}
+        and scalar_equals(inputs["python-version"], "${{ matrix.python-version }}")
+    )
+
+
+def run_step_is_reviewed(step):
+    return (
+        has_exact_keys(step, {"name", "run"})
+        and scalar_equals(step["name"], "Run portable verification")
+        and scalar_equals(step["run"], "make check")
+    )
+
+
+def static_contract_job_is_reviewed(job):
+    if not has_exact_keys(job, {"runs-on", "timeout-minutes", "strategy", "steps"}):
+        return False
+
+    strategy = job["strategy"]
+    if not has_exact_keys(strategy, {"fail-fast", "matrix"}):
+        return False
+    matrix = strategy["matrix"]
+    if not has_exact_keys(matrix, {"python-version"}):
+        return False
+
+    steps = job["steps"]
+    return (
+        scalar_equals(job["runs-on"], "ubuntu-24.04")
+        and scalar_equals(job["timeout-minutes"], "5")
+        and scalar_equals(strategy["fail-fast"], "false", case_sensitive=False)
+        and matrix["python-version"] == ["3.10", "3.12", "3.14"]
+        and isinstance(steps, list)
+        and len(steps) == 3
+        and checkout_step_is_reviewed(steps[0])
+        and setup_python_step_is_reviewed(steps[1])
+        and run_step_is_reviewed(steps[2])
+    )
+
+
+def hosted_workflow_is_reviewed(workflow):
+    document, errors = parse_workflow_yaml(workflow)
+    if errors or not has_exact_keys(document, {"name", "on", "permissions", "concurrency", "jobs"}):
+        return False
+
+    permissions = document["permissions"]
+    concurrency = document["concurrency"]
+    jobs = document["jobs"]
+    return (
+        scalar_equals(document["name"], "Check")
+        and trigger_map_is_reviewed(document["on"])
+        and has_exact_keys(permissions, {"contents"})
+        and scalar_equals(permissions["contents"], "read")
+        and has_exact_keys(concurrency, {"group", "cancel-in-progress"})
+        and scalar_equals(concurrency["group"], "check-${{ github.workflow }}-${{ github.ref }}")
+        and scalar_equals(concurrency["cancel-in-progress"], "true", case_sensitive=False)
+        and has_exact_keys(jobs, {"static-contracts"})
+        and static_contract_job_is_reviewed(jobs["static-contracts"])
+    )
+
+
+def checkout_credentials_are_isolated(workflow):
+    return hosted_workflow_is_reviewed(workflow)
 
 
 def validate_login_lifecycle(login, failures):
@@ -757,23 +977,142 @@ def main():
         failures,
     )
     checkout_mutations = {
-        "writable credentials": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace("false", "true"),
-        "missing setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
-            "        with:\n          persist-credentials: false", ""
+        "writable credentials": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace("false", "true"),
+            1,
         ),
-        "decoy setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
-            "          persist-credentials: false", ""
-        )
-        + "\n      - run: echo 'persist-credentials: false'",
-        "additional checkout": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
-        + "\n      - name: Unsafe second checkout"
-        + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
-        "duplicate setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
-        + "\n          persist-credentials: true",
+        "missing setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
+                "        with:\n          persist-credentials: false", ""
+            ),
+            1,
+        ),
+        "decoy setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
+                "          persist-credentials: false", ""
+            )
+            + "\n      - run: echo 'persist-credentials: false'",
+            1,
+        ),
+        "additional checkout": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n      - name: Unsafe second checkout"
+            + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+            1,
+        ),
+        "duplicate setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n          persist-credentials: true",
+            1,
+        ),
+        "mixed-case duplicate setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n          PERSIST-CREDENTIALS: true",
+            1,
+        ),
+        "mixed-case duplicate with block": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n        With:\n          persist-credentials: true",
+            1,
+        ),
     }
     require(
-        all(not checkout_credentials_are_isolated(mutated) for mutated in checkout_mutations.values()),
+        all(
+            not checkout_credentials_are_isolated(mutated)
+            for mutated in checkout_mutations.values()
+        ),
         "checkout credential isolation mutations must be rejected",
+        failures,
+    )
+    checkout_missing = workflow.replace(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK + "\n", "")
+    checkout_block_scalar_decoy = workflow.replace(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK + "\n", "")
+    checkout_block_scalar_decoy = (
+        checkout_block_scalar_decoy.rstrip()
+        + "\n\nenv:\n  CHECKOUT_DECOY: |\n"
+        + CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+        + "\n"
+    )
+    checkout_alias_additional = workflow.replace(
+        "      - name: Check out repository\n",
+        "      - &checkout_step\n        name: Check out repository\n",
+        1,
+    ).replace(
+        "          persist-credentials: false\n",
+        "          persist-credentials: false\n      - *checkout_step\n",
+        1,
+    )
+    checkout_input_mixed_case = workflow.replace(
+        "          persist-credentials: false",
+        "          PERSIST-CREDENTIALS: FALSE",
+        1,
+    )
+    hostile_workflow_mutations = {
+        "missing checkout": checkout_missing,
+        "writable checkout": workflow.replace(
+            "          persist-credentials: false",
+            "          persist-credentials: true",
+            1,
+        ),
+        "decoy checkout setting": workflow.replace(
+            "          persist-credentials: false\n",
+            "",
+            1,
+        )
+        + "      - run: echo 'persist-credentials: false'\n",
+        "additional checkout": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n      - name: Unsafe second checkout"
+            + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+            1,
+        ),
+        "anchor additional checkout": checkout_alias_additional,
+        "block scalar checkout decoy": checkout_block_scalar_decoy,
+        "duplicate checkout input": workflow.replace(
+            "          persist-credentials: false",
+            "          persist-credentials: false\n          persist-credentials: true",
+            1,
+        ),
+        "mixed-case duplicate checkout input": workflow.replace(
+            "          persist-credentials: false",
+            "          persist-credentials: false\n          PERSIST-CREDENTIALS: true",
+            1,
+        ),
+        "duplicate checkout step key": workflow.replace(
+            "        uses: "
+            "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3",
+            "        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3"
+            + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+            1,
+        ),
+        "duplicate workflow key": (
+            workflow.rstrip() + "\n\npermissions:\n  contents: write\n"
+        ),
+        "decoy run command": workflow.replace(
+            "        run: make check",
+            "        run: echo skipped",
+            1,
+        )
+        + "\nenv:\n  RUN_DECOY: |\n      - name: Run portable verification\n        run: make check\n",
+    }
+    require(
+        checkout_credentials_are_isolated(checkout_input_mixed_case),
+        "checkout credential input must be normalized case-insensitively",
+        failures,
+    )
+    require(
+        all(
+            not checkout_credentials_are_isolated(mutated)
+            for mutated in hostile_workflow_mutations.values()
+        ),
+        "hostile workflow mutations must be rejected",
         failures,
     )
     require(
