@@ -68,7 +68,7 @@ verification sequence in
   `PYTHON` or `XCODEBUILD`. The caller-added double-colon recipes from an
   additional later `-f` file remain outside the repository Make trust boundary
   because GNU Make appends them after the checked-in target body.
-- Make syntax in an explicit `-f` path is evaluated before the repository Makefile loads. For checkout paths containing literal `$(`, change into the checkout and invoke `/usr/bin/make` without an explicit Makefile path.
+- Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. For checkout paths containing literal `$(`, change into the checkout and invoke `/usr/bin/make` without an explicit Makefile path.
 - Protected-screen contracts require any active keyboard offset to be restored
   before navigation removes keyboard observers.
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14

@@ -1217,7 +1217,7 @@ def main():
         "10 raw Make-syntax controls",
         "2 MAKEFILE_LIST rejections",
         "2 startup-boundary cases",
-        "1 explicit -f path boundary proof",
+        "1 version-specific explicit -f path boundary proof",
         "7 later recipe-replacement rejections",
         "1 later double-colon append boundary proof",
         "PATH-Xcode rejection",
@@ -1241,7 +1241,7 @@ def main():
             failures,
         )
         require(
-            "Make syntax in an explicit `-f` path is evaluated before the repository Makefile loads" in document,
+            "Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads" in document,
             f"{relative_path} must document explicit -f Make-syntax paths as pre-load caller authority",
             failures,
         )
