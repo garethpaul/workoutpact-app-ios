@@ -977,23 +977,51 @@ def main():
         failures,
     )
     checkout_mutations = {
-        "writable credentials": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace("false", "true"),
-        "missing setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
-            "        with:\n          persist-credentials: false", ""
+        "writable credentials": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace("false", "true"),
+            1,
         ),
-        "decoy setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
-            "          persist-credentials: false", ""
-        )
-        + "\n      - run: echo 'persist-credentials: false'",
-        "additional checkout": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
-        + "\n      - name: Unsafe second checkout"
-        + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
-        "duplicate setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
-        + "\n          persist-credentials: true",
-        "mixed-case duplicate setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
-        + "\n          PERSIST-CREDENTIALS: true",
-        "mixed-case duplicate with block": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
-        + "\n        With:\n          persist-credentials: true",
+        "missing setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
+                "        with:\n          persist-credentials: false", ""
+            ),
+            1,
+        ),
+        "decoy setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
+                "          persist-credentials: false", ""
+            )
+            + "\n      - run: echo 'persist-credentials: false'",
+            1,
+        ),
+        "additional checkout": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n      - name: Unsafe second checkout"
+            + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+            1,
+        ),
+        "duplicate setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n          persist-credentials: true",
+            1,
+        ),
+        "mixed-case duplicate setting": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n          PERSIST-CREDENTIALS: true",
+            1,
+        ),
+        "mixed-case duplicate with block": workflow.replace(
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
+            CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+            + "\n        With:\n          persist-credentials: true",
+            1,
+        ),
     }
     require(
         all(
