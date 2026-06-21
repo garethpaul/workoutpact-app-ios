@@ -1217,7 +1217,9 @@ def main():
         "10 raw Make-syntax controls",
         "2 MAKEFILE_LIST rejections",
         "2 startup-boundary cases",
+        "1 version-specific explicit -f path boundary proof",
         "7 later recipe-replacement rejections",
+        "1 later double-colon append boundary proof",
         "PATH-Xcode rejection",
         "cleanup containment",
         "10 mode rejections",
@@ -1225,6 +1227,22 @@ def main():
         require(
             contract in authority_source,
             "Make authority harness must retain {0}".format(contract),
+            failures,
+        )
+    for relative_path in (
+        "README.md",
+        "SECURITY.md",
+        "docs/plans/2026-06-21-workoutpact-make-authority-isolation.md",
+    ):
+        document = read_text(relative_path)
+        require(
+            "caller-added double-colon recipes" in document,
+            f"{relative_path} must document caller-added double-colon recipes as outside trust",
+            failures,
+        )
+        require(
+            "Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads" in document,
+            f"{relative_path} must document explicit -f Make-syntax paths as pre-load caller authority",
             failures,
         )
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)

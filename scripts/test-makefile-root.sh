@@ -2,12 +2,12 @@
 set -eu
 PATH=/usr/bin:/bin
 export PATH
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && /bin/pwd -P)
+ROOT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && /bin/pwd -P)
 TEMP_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/workoutpact-make-authority-XXXXXX")
 trap 'rm -rf "$TEMP_ROOT"' EXIT HUP INT TERM
 unset MAKEFILES MAKEFILE_LIST MAKEFLAGS MFLAGS MAKEOVERRIDES PYTHON ROOT SHELL XCODEBUILD
 CONTROL_DIR="$TEMP_ROOT/control"; CHECKOUT="$TEMP_ROOT/workoutpact app's [gate] \"quoted\" \`touch WORKOUTPACT_ROOT_MARKER\`"; ATTACKER_ROOT="$TEMP_ROOT/attacker"; AUTHORITY_PATH="$TEMP_ROOT/no-platform-tools"; LOG="$TEMP_ROOT/commands.log"; SHELL_LOG="$TEMP_ROOT/shell.log"
-mkdir -p "$CONTROL_DIR" "$CHECKOUT/scripts" "$CHECKOUT/Pods" "$ATTACKER_ROOT" "$AUTHORITY_PATH"; CONTROL_DIR=$(CDPATH= cd -- "$CONTROL_DIR" && /bin/pwd -P); CHECKOUT=$(CDPATH= cd -- "$CHECKOUT" && /bin/pwd -P); MAKEFILE="$CHECKOUT/Makefile"; cp "$ROOT_DIR/Makefile" "$MAKEFILE"
+mkdir -p "$CONTROL_DIR" "$CHECKOUT/scripts" "$CHECKOUT/Pods" "$ATTACKER_ROOT" "$AUTHORITY_PATH"; CONTROL_DIR=$(CDPATH='' cd -- "$CONTROL_DIR" && /bin/pwd -P); CHECKOUT=$(CDPATH='' cd -- "$CHECKOUT" && /bin/pwd -P); MAKEFILE="$CHECKOUT/Makefile"; cp "$ROOT_DIR/Makefile" "$MAKEFILE"
 FAKE_PYTHON="$TEMP_ROOT/trusted python's \"quoted\" \`touch WORKOUTPACT_PYTHON_MARKER\` \$literal"; cat >"$FAKE_PYTHON" <<'EOF'
 #!/bin/sh
 printf '%s|%s|%s\n' "$PWD" "$0" "$*" >> "$WORKOUTPACT_COMMAND_LOG"
@@ -25,8 +25,8 @@ executed=0; for target in build check clean lint root-test test verify; do for m
 rm -f "$LOG"; (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" WORKOUTPACT_COMMAND_LOG="$LOG" /usr/bin/make --no-print-directory -f "$MAKEFILE" "PYTHON=$FAKE_PYTHON" "XCODEBUILD=$FAKE_XCODEBUILD" check) >/dev/null 2>&1; grep -Fq "$FAKE_PYTHON" "$LOG"; grep -Fq "$FAKE_XCODEBUILD" "$LOG"; [ ! -e "$CONTROL_DIR/WORKOUTPACT_ROOT_MARKER" ]; [ ! -e "$CONTROL_DIR/WORKOUTPACT_PYTHON_MARKER" ]
 MARK="$TEMP_ROOT/python-syntax"; BAD="\$(shell /usr/bin/touch '$MARK')"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE" "PYTHON=$BAD" lint) >"$TEMP_ROOT/python.out" 2>&1; then exit 1; fi; [ ! -e "$MARK" ]
 ENV_MARK="$TEMP_ROOT/python-environment-syntax"; ENV_BAD="\$(shell /usr/bin/touch '$ENV_MARK')"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" PYTHON="$ENV_BAD" /usr/bin/make --environment-overrides --no-print-directory -f "$MAKEFILE" lint) >"$TEMP_ROOT/python-environment.out" 2>&1; then exit 1; fi; [ ! -e "$ENV_MARK" ]
-ROOT_MARK="$TEMP_ROOT/root-syntax"; ROOT_BAD="\$(shell /usr/bin/touch '$ROOT_MARK')"; (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" WORKOUTPACT_COMMAND_LOG="$LOG" /usr/bin/make --no-print-directory -f "$MAKEFILE" "ROOT=$ROOT_BAD" "PYTHON=$FAKE_PYTHON" XCODEBUILD=/definitely/not-xcodebuild lint) >"$TEMP_ROOT/root.out" 2>&1; [ ! -e "$ROOT_MARK" ]
-ROOT_ENV_MARK="$TEMP_ROOT/root-environment-syntax"; ROOT_ENV_BAD="\$(shell /usr/bin/touch '$ROOT_ENV_MARK')"; (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" ROOT="$ROOT_ENV_BAD" WORKOUTPACT_COMMAND_LOG="$LOG" /usr/bin/make --environment-overrides --no-print-directory -f "$MAKEFILE" "PYTHON=$FAKE_PYTHON" XCODEBUILD=/definitely/not-xcodebuild lint) >"$TEMP_ROOT/root-environment.out" 2>&1; [ ! -e "$ROOT_ENV_MARK" ]
+ROOT_MARK="$TEMP_ROOT/root-syntax"; ROOT_BAD="\$(shell /usr/bin/touch '$ROOT_MARK')"; (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" WORKOUTPACT_COMMAND_LOG="$LOG" /usr/bin/make --no-print-directory -f "$MAKEFILE" "ROOT=$ROOT_BAD" "PYTHON=$FAKE_PYTHON" XCODEBUILD=/definitely/not-xcodebuild lint) >"$TEMP_ROOT/root.out" 2>&1; if [ -e "$ROOT_MARK" ]; then printf '%s\n' 'command-line ROOT Make syntax executed before trusted root assignment' >&2; exit 1; fi
+ROOT_ENV_MARK="$TEMP_ROOT/root-environment-syntax"; ROOT_ENV_BAD="\$(shell /usr/bin/touch '$ROOT_ENV_MARK')"; (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" ROOT="$ROOT_ENV_BAD" WORKOUTPACT_COMMAND_LOG="$LOG" /usr/bin/make --environment-overrides --no-print-directory -f "$MAKEFILE" "PYTHON=$FAKE_PYTHON" XCODEBUILD=/definitely/not-xcodebuild lint) >"$TEMP_ROOT/root-environment.out" 2>&1; if [ -e "$ROOT_ENV_MARK" ]; then printf '%s\n' 'environment ROOT Make syntax executed before trusted root assignment' >&2; exit 1; fi
 XCODE_MARK="$TEMP_ROOT/xcode-syntax"; XCODE_BAD="\$(shell /usr/bin/touch '$XCODE_MARK')"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE" "PYTHON=$FAKE_PYTHON" "XCODEBUILD=$XCODE_BAD" build) >"$TEMP_ROOT/xcode.out" 2>&1; then exit 1; fi; [ ! -e "$XCODE_MARK" ]
 XCODE_ENV_MARK="$TEMP_ROOT/xcode-environment-syntax"; XCODE_ENV_BAD="\$(shell /usr/bin/touch '$XCODE_ENV_MARK')"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" XCODEBUILD="$XCODE_ENV_BAD" /usr/bin/make --environment-overrides --no-print-directory -f "$MAKEFILE" "PYTHON=$FAKE_PYTHON" build) >"$TEMP_ROOT/xcode-environment.out" 2>&1; then exit 1; fi; [ ! -e "$XCODE_ENV_MARK" ]
 PYTHON_BRACE_MARK="$TEMP_ROOT/python-brace-syntax"; PYTHON_BRACE_BAD="\${shell /usr/bin/touch '$PYTHON_BRACE_MARK'}"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE" "PYTHON=$PYTHON_BRACE_BAD" lint) >"$TEMP_ROOT/python-brace.out" 2>&1; then exit 1; fi; [ ! -e "$PYTHON_BRACE_MARK" ]
@@ -37,6 +37,7 @@ if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory
 if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" MAKEFILE_LIST=/tmp/untrusted /usr/bin/make --environment-overrides --no-print-directory -f "$MAKEFILE" check) >"$TEMP_ROOT/list-environment" 2>&1; then exit 1; fi; grep -Fq 'MAKEFILE_LIST must not be overridden' "$TEMP_ROOT/list-environment"
 PRE="$TEMP_ROOT/pre.mk"; PRE_MARKER="$TEMP_ROOT/pre-ran"; printf '%s\n' "\$(shell /usr/bin/touch '$PRE_MARKER')" >"$PRE"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" MAKEFILES="$PRE" /usr/bin/make --no-print-directory -f "$MAKEFILE" check) >"$TEMP_ROOT/pre" 2>&1; then exit 1; fi; grep -Fq 'MAKEFILES must be empty' "$TEMP_ROOT/pre"; [ -e "$PRE_MARKER" ]
 EARLY="$TEMP_ROOT/early.mk"; EARLY_MARKER="$TEMP_ROOT/early-ran"; printf '%s\n' "\$(shell /usr/bin/touch '$EARLY_MARKER')" >"$EARLY"; if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$EARLY" -f "$MAKEFILE" check) >"$TEMP_ROOT/early" 2>&1; then exit 1; fi; [ -s "$TEMP_ROOT/early" ]; [ -e "$EARLY_MARKER" ]
+MAKEFILE_PATH_MARKER="$TEMP_ROOT/makefile-path-ran"; MAKEFILE_PATH_DIR="$TEMP_ROOT/path \$(shell /usr/bin/touch '$MAKEFILE_PATH_MARKER')"; mkdir -p "$MAKEFILE_PATH_DIR"; cp "$MAKEFILE" "$MAKEFILE_PATH_DIR/Makefile"; set +e; (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE_PATH_DIR/Makefile" check) >"$TEMP_ROOT/makefile-path" 2>&1; set -e; MAKE_VERSION=$(/usr/bin/make --version | /usr/bin/head -n 1); case $MAKE_VERSION in *"GNU Make 3.81"*) [ -e "$MAKEFILE_PATH_MARKER" ];; *) [ ! -e "$MAKEFILE_PATH_MARKER" ];; esac
 LATER="$TEMP_ROOT/later.mk"; LATER_MARKER="$TEMP_ROOT/later-ran"; cat >"$LATER" <<'LATER_MAKE'
 build check clean lint root-test test verify: MAKEFILE_LIST := Makefile
 build check clean lint root-test test verify:
@@ -48,6 +49,16 @@ for target in build check clean lint root-test test verify; do
   grep -Fq 'has both : and :: entries' "$TEMP_ROOT/later-$target"
   [ ! -e "$LATER_MARKER" ]
 done
+LATER_APPEND="$TEMP_ROOT/later-append.mk"; LATER_APPEND_MARKER="$TEMP_ROOT/later-append-ran"
+cat >"$LATER_APPEND" <<LATER_APPEND_MAKE
+build check clean lint root-test test verify: MAKEFILE_LIST := $MAKEFILE
+lint::
+	@/usr/bin/touch "\$\$WORKOUTPACT_LATER_APPEND_MARKER"
+LATER_APPEND_MAKE
+rm -f "$LOG" "$LATER_APPEND_MARKER"
+if ! (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" WORKOUTPACT_COMMAND_LOG="$LOG" WORKOUTPACT_LATER_APPEND_MARKER="$LATER_APPEND_MARKER" /usr/bin/make --no-print-directory -f "$MAKEFILE" -f "$LATER_APPEND" lint "PYTHON=$FAKE_PYTHON" XCODEBUILD=/definitely/not-xcodebuild) >"$TEMP_ROOT/later-append" 2>&1; then cat "$TEMP_ROOT/later-append" >&2; exit 1; fi
+grep -Fq "$FAKE_PYTHON" "$LOG"
+[ -e "$LATER_APPEND_MARKER" ]
 LATER_VARS="$TEMP_ROOT/later-vars.mk"; LATER_ROOT_MARKER="$TEMP_ROOT/later-root-ran"; mkdir -p "$ATTACKER_ROOT/scripts"; cat >"$ATTACKER_ROOT/scripts/test-makefile-root.sh" <<'SCRIPT'
 #!/bin/sh
 /usr/bin/touch "$WORKOUTPACT_LATER_ROOT_MARKER"
@@ -123,4 +134,4 @@ rm -f "$EXPLICIT_XCODE_LOG" "$TARGET_XCODE_LOG"
 [ ! -e "$TARGET_XCODE_LOG" ]
 if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE" MAKEFLAGS=-n check) >"$TEMP_ROOT/flags" 2>&1; then exit 1; fi; grep -Fq 'MAKEFLAGS must not be overridden' "$TEMP_ROOT/flags"
 for flag in -n --just-print --dry-run --recon -t --touch -q --question -i --ignore-errors; do if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make "$flag" --no-print-directory -f "$MAKEFILE" check) >"$TEMP_ROOT/flag" 2>&1; then exit 1; fi; grep -Fq 'non-executing or error-ignoring MAKEFLAGS are not supported' "$TEMP_ROOT/flag"; done
-printf '%s\n' 'Make authority tests passed: 35 target/authority cases, literal hostile Python path, 10 raw Make-syntax controls, 2 MAKEFILE_LIST rejections, 2 startup-boundary cases, 7 later recipe-replacement rejections, later root/Python/Xcode and non-override shell protection, override/startup/PATH-Python boundary controls, PATH-Xcode rejection, cleanup containment, caller MAKEFLAGS rejection, and 10 mode rejections'
+printf '%s\n' 'Make authority tests passed: 35 target/authority cases, literal hostile Python path, 10 raw Make-syntax controls, 2 MAKEFILE_LIST rejections, 2 startup-boundary cases, 1 version-specific explicit -f path boundary proof, 7 later recipe-replacement rejections, 1 later double-colon append boundary proof, later root/Python/Xcode and non-override shell protection, override/startup/PATH-Python boundary controls, PATH-Xcode rejection, cleanup containment, caller MAKEFLAGS rejection, and 10 mode rejections'

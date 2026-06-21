@@ -73,9 +73,13 @@ Dependency updates should come from trusted package managers and should keep loc
 
 Hosted verification invokes `/usr/bin/make check`. The checked-in Makefile
 rejects startup injection, unsafe execution modes, caller-controlled roots and
-shells, later public recipe replacement, and Make expressions in Python or
-Xcode executable paths. A caller still controls a bare `python3` through
-`PATH`; use an explicit reviewed interpreter path for exact local reproduction.
+shells, later single-colon public recipe replacement, and Make expressions in
+Python or Xcode executable paths. The caller-added double-colon recipes from an
+additional later `-f` file are outside this trust boundary because GNU Make
+appends them after the checked-in target body. A caller still controls a bare
+`python3` through `PATH`; use an explicit reviewed interpreter path for exact
+local reproduction.
+Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. Checkout paths containing literal `$(` must be invoked from inside the checkout without an explicit Makefile path.
 
 ## Safe Research Guidelines
 
