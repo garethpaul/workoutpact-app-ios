@@ -70,7 +70,11 @@ def require(condition, message, failures):
 
 
 def checkout_credentials_are_isolated(workflow):
-    return workflow.count(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK) == 1
+    return (
+        workflow.count(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK) == 1
+        and workflow.count("actions/checkout@") == 1
+        and workflow.count("persist-credentials:") == 1
+    )
 
 
 def validate_login_lifecycle(login, failures):
@@ -761,6 +765,11 @@ def main():
             "          persist-credentials: false", ""
         )
         + "\n      - run: echo 'persist-credentials: false'",
+        "additional checkout": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+        + "\n      - name: Unsafe second checkout"
+        + "\n        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "duplicate setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK
+        + "\n          persist-credentials: true",
     }
     require(
         all(not checkout_credentials_are_isolated(mutated) for mutated in checkout_mutations.values()),
