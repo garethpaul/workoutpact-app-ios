@@ -66,8 +66,8 @@ verification sequence in
   before navigation removes keyboard observers.
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14
   on fixed Ubuntu 24.04 runners with read-only permissions, superseded-run
-  cancellation, and manual dispatch; Linux runners intentionally skip the
-  Xcode build pending the Swift and retired-SDK migration.
+  cancellation, credential-free checkout, and manual dispatch; Linux runners
+  intentionally skip the Xcode build pending the Swift and retired-SDK migration.
 - `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, stale
   payment callback, callback-generation, and no-backend billing disclosure,
