@@ -36,9 +36,14 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-16-workoutpact-twitter-transition-guard.md",
     DOCS_PLANS / "2026-06-16-workoutpact-shake-presentation-guard.md",
     DOCS_PLANS / "2026-06-19-workoutpact-async-flow-safety-review.md",
+    DOCS_PLANS / "2026-06-21-workoutpact-checkout-credential-isolation.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
+CHECKOUT_CREDENTIAL_ISOLATION_BLOCK = """      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false"""
 
 
 def read_text(relative_path):
@@ -62,6 +67,10 @@ def read_plist(relative_path, failures):
 def require(condition, message, failures):
     if not condition:
         failures.append(message)
+
+
+def checkout_credentials_are_isolated(workflow):
+    return workflow.count(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK) == 1
 
 
 def validate_login_lifecycle(login, failures):
@@ -736,6 +745,26 @@ def main():
     require(
         "permissions:\n  contents: read" in workflow,
         "hosted verification permissions must be read-only",
+        failures,
+    )
+    require(
+        checkout_credentials_are_isolated(workflow),
+        "checkout must disable persisted credentials on the immutable checkout step",
+        failures,
+    )
+    checkout_mutations = {
+        "writable credentials": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace("false", "true"),
+        "missing setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
+            "        with:\n          persist-credentials: false", ""
+        ),
+        "decoy setting": CHECKOUT_CREDENTIAL_ISOLATION_BLOCK.replace(
+            "          persist-credentials: false", ""
+        )
+        + "\n      - run: echo 'persist-credentials: false'",
+    }
+    require(
+        all(not checkout_credentials_are_isolated(mutated) for mutated in checkout_mutations.values()),
+        "checkout credential isolation mutations must be rejected",
         failures,
     )
     require(

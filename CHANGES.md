@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-21
+
+- Disabled persisted Git credentials in hosted verification and bound that
+  guarantee to the immutable checkout step with hostile contract mutations.
+
 ## 2026-06-19
 
 - Reserved Stripe tokenization and Digits authentication before provider calls,
