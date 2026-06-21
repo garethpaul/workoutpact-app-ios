@@ -1218,6 +1218,7 @@ def main():
         "2 MAKEFILE_LIST rejections",
         "2 startup-boundary cases",
         "7 later recipe-replacement rejections",
+        "1 later double-colon append boundary proof",
         "PATH-Xcode rejection",
         "cleanup containment",
         "10 mode rejections",
@@ -1225,6 +1226,17 @@ def main():
         require(
             contract in authority_source,
             "Make authority harness must retain {0}".format(contract),
+            failures,
+        )
+    for relative_path in (
+        "README.md",
+        "SECURITY.md",
+        "docs/plans/2026-06-21-workoutpact-make-authority-isolation.md",
+    ):
+        document = read_text(relative_path)
+        require(
+            "caller-added double-colon recipes" in document,
+            f"{relative_path} must document caller-added double-colon recipes as outside trust",
             failures,
         )
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)

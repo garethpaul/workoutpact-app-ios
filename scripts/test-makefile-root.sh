@@ -48,6 +48,16 @@ for target in build check clean lint root-test test verify; do
   grep -Fq 'has both : and :: entries' "$TEMP_ROOT/later-$target"
   [ ! -e "$LATER_MARKER" ]
 done
+LATER_APPEND="$TEMP_ROOT/later-append.mk"; LATER_APPEND_MARKER="$TEMP_ROOT/later-append-ran"
+cat >"$LATER_APPEND" <<LATER_APPEND_MAKE
+build check clean lint root-test test verify: MAKEFILE_LIST := $MAKEFILE
+lint::
+	@/usr/bin/touch "\$\$WORKOUTPACT_LATER_APPEND_MARKER"
+LATER_APPEND_MAKE
+rm -f "$LOG" "$LATER_APPEND_MARKER"
+if ! (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" WORKOUTPACT_COMMAND_LOG="$LOG" WORKOUTPACT_LATER_APPEND_MARKER="$LATER_APPEND_MARKER" /usr/bin/make --no-print-directory -f "$MAKEFILE" -f "$LATER_APPEND" lint "PYTHON=$FAKE_PYTHON" XCODEBUILD=/definitely/not-xcodebuild) >"$TEMP_ROOT/later-append" 2>&1; then cat "$TEMP_ROOT/later-append" >&2; exit 1; fi
+grep -Fq "$FAKE_PYTHON" "$LOG"
+[ -e "$LATER_APPEND_MARKER" ]
 LATER_VARS="$TEMP_ROOT/later-vars.mk"; LATER_ROOT_MARKER="$TEMP_ROOT/later-root-ran"; mkdir -p "$ATTACKER_ROOT/scripts"; cat >"$ATTACKER_ROOT/scripts/test-makefile-root.sh" <<'SCRIPT'
 #!/bin/sh
 /usr/bin/touch "$WORKOUTPACT_LATER_ROOT_MARKER"
@@ -123,4 +133,4 @@ rm -f "$EXPLICIT_XCODE_LOG" "$TARGET_XCODE_LOG"
 [ ! -e "$TARGET_XCODE_LOG" ]
 if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE" MAKEFLAGS=-n check) >"$TEMP_ROOT/flags" 2>&1; then exit 1; fi; grep -Fq 'MAKEFLAGS must not be overridden' "$TEMP_ROOT/flags"
 for flag in -n --just-print --dry-run --recon -t --touch -q --question -i --ignore-errors; do if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make "$flag" --no-print-directory -f "$MAKEFILE" check) >"$TEMP_ROOT/flag" 2>&1; then exit 1; fi; grep -Fq 'non-executing or error-ignoring MAKEFLAGS are not supported' "$TEMP_ROOT/flag"; done
-printf '%s\n' 'Make authority tests passed: 35 target/authority cases, literal hostile Python path, 10 raw Make-syntax controls, 2 MAKEFILE_LIST rejections, 2 startup-boundary cases, 7 later recipe-replacement rejections, later root/Python/Xcode and non-override shell protection, override/startup/PATH-Python boundary controls, PATH-Xcode rejection, cleanup containment, caller MAKEFLAGS rejection, and 10 mode rejections'
+printf '%s\n' 'Make authority tests passed: 35 target/authority cases, literal hostile Python path, 10 raw Make-syntax controls, 2 MAKEFILE_LIST rejections, 2 startup-boundary cases, 7 later recipe-replacement rejections, 1 later double-colon append boundary proof, later root/Python/Xcode and non-override shell protection, override/startup/PATH-Python boundary controls, PATH-Xcode rejection, cleanup containment, caller MAKEFLAGS rejection, and 10 mode rejections'

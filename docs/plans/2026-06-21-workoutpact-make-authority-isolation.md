@@ -25,8 +25,9 @@ or make verification execute different commands than the checked-in gate.
   cleanup, the authority harness, and the truthful legacy Xcode boundary.
 - The authority harness covers 35 target/root/shell combinations, hostile
   literal Python and Xcode paths, ten raw Make-syntax controls, startup and
-  Makefile-list boundaries, seven later recipe replacements, cleanup
-  containment, PATH-Xcode rejection, and ten unsupported execution modes.
+  Makefile-list boundaries, seven later recipe replacements, caller-added
+  double-colon recipes, cleanup containment, PATH-Xcode rejection, and ten
+  unsupported execution modes.
 
 ## Trust Boundary
 
@@ -34,6 +35,10 @@ GNU Make parses an earlier startup file before this Makefile can reject it, and
 an explicit later `override` directive remains caller authority. A caller who
 chooses the default `python3` still controls `PATH`; hosted verification installs
 the reviewed Python runtime before invoking the fixed system Make executable.
+The caller-added double-colon recipes from an additional later `-f` file are also
+caller authority: GNU Make appends those recipes after the checked-in target
+body, so the repository harness proves and documents that behavior instead of
+claiming the checked-in Makefile can prevent it.
 
 ## Scope Boundary
 

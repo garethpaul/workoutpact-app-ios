@@ -5,6 +5,8 @@
 - Isolated repository verification from caller-controlled Make startup files,
   shell state, execution modes, root overrides, Python/Xcode expressions, and
   later public recipe replacement.
+- Documented and tested caller-added double-colon recipes from additional
+  later `-f` files as outside the repository Make trust boundary.
 - Added adversarial Make authority coverage and bound hosted verification to
   `/usr/bin/make` without changing Swift, pods, frameworks, or Xcode settings.
 - Disabled persisted Git credentials in hosted verification and bound that

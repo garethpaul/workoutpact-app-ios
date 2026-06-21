@@ -64,8 +64,10 @@ verification sequence in
 - `/usr/bin/make check` - runs local Python/Ruby static contracts without downloaded dependencies and attempts an Xcode build only when an explicit executable `XCODEBUILD` path and `Pods/` are available
 - Public Make targets resolve the repository from the loaded Makefile and
   reject startup injection, unsafe execution modes, caller-controlled roots or
-  shells, later recipe replacement, and Make expressions in `PYTHON` or
-  `XCODEBUILD`.
+  shells, later single-colon recipe replacement, and Make expressions in
+  `PYTHON` or `XCODEBUILD`. The caller-added double-colon recipes from an
+  additional later `-f` file remain outside the repository Make trust boundary
+  because GNU Make appends them after the checked-in target body.
 - Protected-screen contracts require any active keyboard offset to be restored
   before navigation removes keyboard observers.
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14
