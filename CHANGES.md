@@ -4,6 +4,9 @@
 
 - Disabled persisted Git credentials in hosted verification and bound that
   guarantee to the immutable checkout step with hostile contract mutations.
+- Parse the hosted workflow semantically so block-scalar decoys, aliases,
+  duplicate keys, extra checkout steps, and run-command decoys cannot satisfy
+  the static contract.
 
 ## 2026-06-19
 

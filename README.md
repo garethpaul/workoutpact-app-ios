@@ -61,7 +61,7 @@ with a current iOS SDK. Follow the staged dependency, payment, Swift, and device
 verification sequence in
 `docs/plans/2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md`.
 
-- `make check` - runs dependency-free static contracts and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
+- `make check` - runs local Python/Ruby static contracts without downloaded dependencies and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
 - Protected-screen contracts require any active keyboard offset to be restored
   before navigation removes keyboard observers.
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14
