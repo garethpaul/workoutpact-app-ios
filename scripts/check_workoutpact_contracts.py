@@ -39,9 +39,11 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-16-workoutpact-shake-presentation-guard.md",
     DOCS_PLANS / "2026-06-19-workoutpact-async-flow-safety-review.md",
     DOCS_PLANS / "2026-06-21-workoutpact-checkout-credential-isolation.md",
+    DOCS_PLANS / "2026-06-21-workoutpact-make-authority-isolation.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
+MAKE_AUTHORITY_SCRIPT = ROOT / "scripts/test-makefile-root.sh"
 CHECKOUT_CREDENTIAL_ISOLATION_BLOCK = """      - name: Check out repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -243,7 +245,7 @@ def run_step_is_reviewed(step):
     return (
         has_exact_keys(step, {"name", "run"})
         and scalar_equals(step["name"], "Run portable verification")
-        and scalar_equals(step["run"], "make check")
+        and scalar_equals(step["run"], "/usr/bin/make check")
     )
 
 
@@ -1096,11 +1098,11 @@ def main():
             workflow.rstrip() + "\n\npermissions:\n  contents: write\n"
         ),
         "decoy run command": workflow.replace(
-            "        run: make check",
+            "        run: /usr/bin/make check",
             "        run: echo skipped",
             1,
         )
-        + "\nenv:\n  RUN_DECOY: |\n      - name: Run portable verification\n        run: make check\n",
+        + "\nenv:\n  RUN_DECOY: |\n      - name: Run portable verification\n        run: /usr/bin/make check\n",
     }
     require(
         checkout_credentials_are_isolated(checkout_input_mixed_case),
@@ -1136,7 +1138,11 @@ def main():
         failures,
     )
     require("timeout-minutes: 5" in workflow, "hosted verification must have a timeout", failures)
-    require("run: make check" in workflow, "hosted verification must run make check", failures)
+    require(
+        "run: /usr/bin/make check" in workflow,
+        "hosted verification must run the trusted system Make authority",
+        failures,
+    )
     require("concurrency:" in workflow, "hosted verification must define concurrency", failures)
     require(
         "cancel-in-progress: true" in workflow,
@@ -1151,39 +1157,76 @@ def main():
     require("ubuntu-latest" not in workflow, "hosted verification must not use a floating runner", failures)
     makefile = MAKEFILE.read_text(encoding="utf-8")
     makefile_lines = set(makefile.splitlines())
+    for contract in (
+        ".DEFAULT_GOAL := check",
+        ".SECONDEXPANSION:",
+        "PYTHON ?= python3",
+        "override PYTHON := $(value PYTHON)",
+        "XCODEBUILD ?= /usr/bin/xcodebuild",
+        "override XCODEBUILD := $(value XCODEBUILD)",
+        "override SHELL := /bin/sh",
+        "override .SHELLFLAGS := -c",
+        "override MAKEFILES :=",
+        "ifneq ($(origin MAKEFILE_LIST),file)",
+        "export ROOT",
+        "root-test::",
+        "\t/bin/sh '$(REPOSITORY_ROOT_LITERAL)/scripts/test-makefile-root.sh'",
+        "verify:: root-test lint test build",
+    ):
+        require(
+            contract in makefile_lines,
+            "Makefile authority contract is missing {0!r}".format(contract),
+            failures,
+        )
+    require("MAKEFLAGS must not be overridden" in makefile, "Makefile must reject caller MAKEFLAGS", failures)
+    require("MAKEFILES must be empty" in makefile, "Makefile must reject startup files", failures)
+    require("MAKEFILE_LIST must not be overridden" in makefile, "Makefile must reject Makefile-list replacement", failures)
+    require("PYTHON must be a literal executable path" in makefile, "Makefile must reject Python Make syntax", failures)
+    require("XCODEBUILD must be a literal executable path" in makefile, "Makefile must reject Xcode Make syntax", failures)
+    for script_name in (
+        "check_workoutpact_contracts.py",
+        "test_login_lifecycle_contract.py",
+        "test_login_callback_ownership_contract.py",
+        "test_shake_presentation_contract.py",
+        "test_async_flow_safety_contract.py",
+    ):
+        require(
+            "'$(REPOSITORY_ROOT_LITERAL)/scripts/{0}'".format(script_name) in makefile,
+            "Makefile must use the rooted {0} path".format(script_name),
+            failures,
+        )
     require(
-        "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))" in makefile_lines,
-        "Makefile must protect the repository root",
-        failures,
-    )
-    require("PYTHON ?= python3" in makefile_lines, "Makefile must preserve the Python command override", failures)
-    require(
-        "CHECK_SCRIPT := $(ROOT)/scripts/check_workoutpact_contracts.py" in makefile,
-        "Makefile must use the rooted checker path",
-        failures,
-    )
-    require(
-        "LOGIN_OWNERSHIP_CONTRACT_SCRIPT := $(ROOT)/scripts/test_login_callback_ownership_contract.py" in makefile
-        and '$(PYTHON) "$(LOGIN_OWNERSHIP_CONTRACT_SCRIPT)"' in makefile,
-        "Makefile must register the rooted Twitter login ownership mutation gate",
-        failures,
-    )
-    require(
-        "SHAKE_PRESENTATION_CONTRACT_SCRIPT := $(ROOT)/scripts/test_shake_presentation_contract.py" in makefile
-        and '$(PYTHON) "$(SHAKE_PRESENTATION_CONTRACT_SCRIPT)"' in makefile,
-        "Makefile must register the rooted shake-presentation mutation gate",
-        failures,
-    )
-    require(
-        "WORKSPACE := $(ROOT)/workoutpact.xcworkspace" in makefile,
-        "Makefile must resolve the Xcode workspace from the repository root",
-        failures,
-    )
-    require(
-        '-workspace "$(WORKSPACE)"' in makefile,
+        "'$(REPOSITORY_ROOT_LITERAL)/workoutpact.xcworkspace'" in makefile,
         "Xcode build must use the rooted workspace path",
         failures,
     )
+    require(
+        "/usr/bin/find '$(REPOSITORY_ROOT_LITERAL)'" in makefile,
+        "Makefile cleanup must stay inside the repository",
+        failures,
+    )
+    require(
+        MAKE_AUTHORITY_SCRIPT.is_file() and MAKE_AUTHORITY_SCRIPT.stat().st_mode & 0o111,
+        "Make authority harness must exist and be executable",
+        failures,
+    )
+    authority_source = MAKE_AUTHORITY_SCRIPT.read_text(encoding="utf-8")
+    for contract in (
+        "35 target/authority cases",
+        "literal hostile Python path",
+        "10 raw Make-syntax controls",
+        "2 MAKEFILE_LIST rejections",
+        "2 startup-boundary cases",
+        "7 later recipe-replacement rejections",
+        "PATH-Xcode rejection",
+        "cleanup containment",
+        "10 mode rejections",
+    ):
+        require(
+            contract in authority_source,
+            "Make authority harness must retain {0}".format(contract),
+            failures,
+        )
     require(DOCS_PLANS.is_dir(), "docs/plans must exist", failures)
     require(plans, "docs/plans must contain completed maintenance plans", failures)
     for plan in CANONICAL_PLANS:

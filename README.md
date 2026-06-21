@@ -61,14 +61,18 @@ with a current iOS SDK. Follow the staged dependency, payment, Swift, and device
 verification sequence in
 `docs/plans/2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md`.
 
-- `make check` - runs local Python/Ruby static contracts without downloaded dependencies and attempts an Xcode build only when `xcodebuild` and `Pods/` are available
+- `/usr/bin/make check` - runs local Python/Ruby static contracts without downloaded dependencies and attempts an Xcode build only when an explicit executable `XCODEBUILD` path and `Pods/` are available
+- Public Make targets resolve the repository from the loaded Makefile and
+  reject startup injection, unsafe execution modes, caller-controlled roots or
+  shells, later recipe replacement, and Make expressions in `PYTHON` or
+  `XCODEBUILD`.
 - Protected-screen contracts require any active keyboard offset to be restored
   before navigation removes keyboard observers.
 - GitHub Actions runs the same portable gate on Python 3.10, 3.12, and 3.14
   on fixed Ubuntu 24.04 runners with read-only permissions, superseded-run
   cancellation, credential-free checkout, and manual dispatch; Linux runners
   intentionally skip the Xcode build pending the Swift and retired-SDK migration.
-- `make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
+- `/usr/bin/make verify` - runs the WorkoutPact metadata, privacy, auth, payment-token,
   payment input, payment-button, payment-key, payment-error logging, stale
   payment callback, callback-generation, and no-backend billing disclosure,
   stale Twitter login callback and weak callback ownership,
@@ -77,6 +81,8 @@ verification sequence in
   outlet and keyboard-shift static contracts
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
+- The Make authority boundary and adversarial regression matrix are documented
+  in `docs/plans/2026-06-21-workoutpact-make-authority-isolation.md`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.

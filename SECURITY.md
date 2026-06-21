@@ -71,6 +71,12 @@ If this project requests device permissions such as location, camera, microphone
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 
+Hosted verification invokes `/usr/bin/make check`. The checked-in Makefile
+rejects startup injection, unsafe execution modes, caller-controlled roots and
+shells, later public recipe replacement, and Make expressions in Python or
+Xcode executable paths. A caller still controls a bare `python3` through
+`PATH`; use an explicit reviewed interpreter path for exact local reproduction.
+
 ## Safe Research Guidelines
 
 Good-faith research is welcome when it stays within these boundaries:
