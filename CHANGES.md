@@ -8,6 +8,7 @@
 - Documented and tested caller-added double-colon recipes from additional
   later `-f` files as outside the repository Make trust boundary.
 - Documented and tested version-specific explicit `-f` Make-syntax paths as pre-load caller authority.
+- Covered GNU Make 4.2.1's explicit `-f` pre-load behavior in the portable authority regression harness.
 - Added adversarial Make authority coverage and bound hosted verification to
   `/usr/bin/make` without changing Swift, pods, frameworks, or Xcode settings.
 - Disabled persisted Git credentials in hosted verification and bound that
