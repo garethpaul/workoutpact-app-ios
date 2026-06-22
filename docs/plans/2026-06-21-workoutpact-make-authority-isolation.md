@@ -39,7 +39,7 @@ The caller-added double-colon recipes from an additional later `-f` file are als
 caller authority: GNU Make appends those recipes after the checked-in target
 body, so the repository harness proves and documents that behavior instead of
 claiming the checked-in Makefile can prevent it.
-Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. The harness proves that pre-load boundary; checkout paths containing literal `$(` must be invoked from inside the checkout without an explicit Makefile path.
+Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. The harness proves pre-load execution on GNU Make 3.81 and 4.2.1 and non-execution on the hosted GNU Make 4.3 gate; checkout paths containing literal `$(` must be invoked from inside the checkout without an explicit Makefile path.
 
 ## Scope Boundary
 

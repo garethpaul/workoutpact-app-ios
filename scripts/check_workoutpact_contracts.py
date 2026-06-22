@@ -1211,6 +1211,11 @@ def main():
         failures,
     )
     authority_source = MAKE_AUTHORITY_SCRIPT.read_text(encoding="utf-8")
+    require(
+        '"GNU Make 4.2.1"' in authority_source,
+        "Make authority harness must retain the GNU Make 4.2.1 explicit -f boundary",
+        failures,
+    )
     for contract in (
         "35 target/authority cases",
         "literal hostile Python path",
