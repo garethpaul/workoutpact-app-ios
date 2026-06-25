@@ -171,6 +171,39 @@ def validate_shake(source, failures):
     )
 
 
+def validate_logout(source, failures):
+    require(
+        "var logoutTransitionInFlight = false" in source,
+        "logout flow needs one transition owner",
+        failures,
+    )
+    require(
+        "if logoutTransitionInFlight || self.presentedViewController != nil" in source,
+        "logout entry must reject duplicate or overlapping presentation",
+        failures,
+    )
+    require(
+        before(source, "logoutTransitionInFlight = true", "Digits.sharedInstance().logOut()"),
+        "logout transition must be claimed before session clearing",
+        failures,
+    )
+    require(
+        "dispatch_async(dispatch_get_main_queue(), { [weak self] in" in source,
+        "queued logout navigation must weakly capture the controller",
+        failures,
+    )
+    require(
+        "if !controller.logoutTransitionInFlight || controller.presentedViewController != nil" in source,
+        "queued logout navigation must revalidate ownership and presentation state",
+        failures,
+    )
+    require(
+        "controller.logoutTransitionInFlight = false" in source,
+        "failed logout destination lookup must release transition ownership",
+        failures,
+    )
+
+
 def validate_config(source, documentation, failures):
     require(
         'trimmedKey.hasPrefix("pk_test_")' in source and 'pk_live_' not in source,
@@ -196,6 +229,7 @@ def validate_all(sources):
     validate_two_factor(sources["two_factor"], failures)
     validate_login(sources["login"], failures)
     validate_shake(sources["shake"], failures)
+    validate_logout(sources["logout"], failures)
     validate_config(sources["app_delegate"], sources["documentation"], failures)
     return failures
 
@@ -213,6 +247,7 @@ def main():
         "two_factor": read("workoutpact/TwoFactorViewController.swift"),
         "login": read("workoutpact/LoginViewController.swift"),
         "shake": read("workoutpact/ShakeViewContorller.swift"),
+        "logout": read("workoutpact/ViewController.swift"),
         "app_delegate": read("workoutpact/AppDelegate.swift"),
         "documentation": read("SECURITY.md"),
     }
@@ -229,6 +264,8 @@ def main():
         "login presentation overlap": ("login", "                    if controller.presentedViewController != nil {\n                        return\n                    }\n", ""),
         "shake duplicate guard": ("shake", "shareFlowInFlight || ", ""),
         "shake weak composer capture": ("shake", "composer.showWithCompletion { [weak self]", "composer.showWithCompletion {"),
+        "logout duplicate guard": ("logout", "logoutTransitionInFlight || ", ""),
+        "logout weak queued capture": ("logout", "{ [weak self] in", "{"),
         "publishable key class": ("app_delegate", 'trimmedKey.hasPrefix("pk_test_")', 'trimmedKey.hasPrefix("pk_")'),
         "billing amount boundary": ("documentation", "server-authoritative integer minor units", "client-provided amount"),
     }

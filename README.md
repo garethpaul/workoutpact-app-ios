@@ -107,6 +107,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Successful Twitter login, Digits verification, Stripe tokenization, and
   shake-to-share flows each reserve one transition so duplicate provider or UI
   callbacks cannot repeat protected navigation, billing UI, or composition.
+- Logout reserves one queued login transition, rejects overlapping modal
+  presentation, and releases ownership when destination lookup fails.
 - Billing remains disabled; any future backend must validate
   server-authoritative integer minor units and an explicit ISO 4217 currency
   allowlist.

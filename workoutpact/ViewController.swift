@@ -13,15 +13,29 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     var kbHeight: CGFloat = 0
     var keyboardIsVisible = false
+    var logoutTransitionInFlight = false
 
     @IBAction func logOut(sender: AnyObject) {
+        if logoutTransitionInFlight || self.presentedViewController != nil {
+            return
+        }
+
+        logoutTransitionInFlight = true
         Digits.sharedInstance().logOut()
         Twitter.sharedInstance().logOut()
-        dispatch_async(dispatch_get_main_queue(), {
-            if let storyboard = self.storyboard {
-                if let controller = storyboard.instantiateViewControllerWithIdentifier("LoginViewController") as? LoginViewController {
-                    self.presentViewController(controller, animated: true, completion: nil)
+        dispatch_async(dispatch_get_main_queue(), { [weak self] in
+            if let controller = self {
+                if !controller.logoutTransitionInFlight || controller.presentedViewController != nil {
+                    controller.logoutTransitionInFlight = false
+                    return
                 }
+                if let storyboard = controller.storyboard {
+                    if let loginController = storyboard.instantiateViewControllerWithIdentifier("LoginViewController") as? LoginViewController {
+                        controller.presentViewController(loginController, animated: true, completion: nil)
+                        return
+                    }
+                }
+                controller.logoutTransitionInFlight = false
             }
         });
     }

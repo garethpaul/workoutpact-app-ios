@@ -40,6 +40,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-19-workoutpact-async-flow-safety-review.md",
     DOCS_PLANS / "2026-06-21-workoutpact-checkout-credential-isolation.md",
     DOCS_PLANS / "2026-06-21-workoutpact-make-authority-isolation.md",
+    DOCS_PLANS / "2026-06-25-workoutpact-logout-transition.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -927,7 +928,7 @@ def main():
         failures,
     )
     require(
-        "if let storyboard = self.storyboard" in workout and "self.storyboard!" not in workout,
+        "if let storyboard = controller.storyboard" in workout and "self.storyboard!" not in workout,
         "logout navigation must guard storyboard lookup before presenting login",
         failures,
     )
@@ -935,6 +936,25 @@ def main():
         "as! LoginViewController" not in workout
         and "as? LoginViewController" in workout,
         "logout navigation must safely cast the login controller",
+        failures,
+    )
+    require(
+        "var logoutTransitionInFlight = false" in workout
+        and "if logoutTransitionInFlight || self.presentedViewController != nil" in workout,
+        "logout navigation must reserve one non-overlapping transition",
+        failures,
+    )
+    require(
+        workout.index("logoutTransitionInFlight = true")
+        < workout.index("Digits.sharedInstance().logOut()")
+        and "dispatch_async(dispatch_get_main_queue(), { [weak self] in" in workout,
+        "logout navigation must claim before clearing sessions and weakly queue presentation",
+        failures,
+    )
+    require(
+        "if !controller.logoutTransitionInFlight || controller.presentedViewController != nil" in workout
+        and "controller.logoutTransitionInFlight = false" in workout,
+        "queued logout navigation must revalidate and release failed ownership",
         failures,
     )
     require(
