@@ -82,10 +82,11 @@ clean::
 	/usr/bin/find '$(REPOSITORY_ROOT_LITERAL)' -type d -name '__pycache__' -prune -exec /bin/rm -rf {} +
 
 lint::
-	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' -m py_compile '$(REPOSITORY_ROOT_LITERAL)/scripts/check_workoutpact_contracts.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_login_lifecycle_contract.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_login_callback_ownership_contract.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_shake_presentation_contract.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_async_flow_safety_contract.py'
+	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' -m py_compile '$(REPOSITORY_ROOT_LITERAL)/scripts/check_workoutpact_contracts.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_check_workoutpact_contracts.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_login_lifecycle_contract.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_login_callback_ownership_contract.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_shake_presentation_contract.py' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_async_flow_safety_contract.py'
 
 test::
 	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/check_workoutpact_contracts.py'
+	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_check_workoutpact_contracts.py'
 	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_login_lifecycle_contract.py'
 	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_login_callback_ownership_contract.py'
 	PYTHONDONTWRITEBYTECODE=1 '$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/test_shake_presentation_contract.py'

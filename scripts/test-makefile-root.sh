@@ -13,7 +13,7 @@ FAKE_PYTHON="$TEMP_ROOT/trusted python's \"quoted\" \`touch WORKOUTPACT_PYTHON_M
 printf '%s|%s|%s\n' "$PWD" "$0" "$*" >> "$WORKOUTPACT_COMMAND_LOG"
 EOF
 chmod +x "$FAKE_PYTHON"
-for script in test-makefile-root.sh check_workoutpact_contracts.py test_login_lifecycle_contract.py test_login_callback_ownership_contract.py test_shake_presentation_contract.py test_async_flow_safety_contract.py; do cp "$FAKE_PYTHON" "$CHECKOUT/scripts/$script"; done
+for script in test-makefile-root.sh check_workoutpact_contracts.py test_check_workoutpact_contracts.py test_login_lifecycle_contract.py test_login_callback_ownership_contract.py test_shake_presentation_contract.py test_async_flow_safety_contract.py; do cp "$FAKE_PYTHON" "$CHECKOUT/scripts/$script"; done
 FAKE_XCODEBUILD="$TEMP_ROOT/trusted xcodebuild"; cat >"$FAKE_XCODEBUILD" <<'EOF'
 #!/bin/sh
 printf '%s|%s|%s\n' "$PWD" "$0" "$*" >> "$WORKOUTPACT_COMMAND_LOG"
