@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DigitsKit
 import TwitterKit
 
 class ViewController: UIViewController, UITextFieldDelegate {

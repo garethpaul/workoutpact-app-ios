@@ -20,6 +20,7 @@ Priority:
 - Keep a single Twitter login transition per visible login appearance
 - Keep a single queued logout-to-login transition and reject modal overlap
 - Keep API keys and payment credentials out of source control
+- Keep retained SDK imports explicit in every Swift file that uses their symbols
 - Keep payment UI state guarded while tokenization is in flight
 - Reject payment requests and callbacks after the payment screen is covered
 - Keep pre-dismissal Stripe and Digits callbacks invalid after reappearance

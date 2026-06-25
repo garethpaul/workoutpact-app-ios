@@ -1,5 +1,63 @@
 # Changes
 
+## 2026-06-25 16:30 PDT - P1 - Restore logout Digits module import
+
+### Summary
+
+Restored the protected logout controller's direct access to the Digits SDK by
+importing `DigitsKit` in the Swift file that clears the Digits session.
+
+### Work completed
+
+- Added the missing file-scoped `DigitsKit` import without widening the
+  Objective-C bridging header.
+- Extended the async-flow mutation suite from twelve to thirteen rejected
+  mutations with a missing-import control.
+- Documented the retained SDK module boundary and implementation evidence.
+
+### Threads
+
+- None. Source tracing, the checked-in bridging header, sibling Swift imports,
+  and Swift's official import semantics converged on the same focused repair.
+
+### Files changed
+
+- `workoutpact/ViewController.swift` — imported the DigitsKit module used by
+  logout session clearing.
+- `scripts/test_async_flow_safety_contract.py` — required and mutation-tested
+  the direct module import.
+- `README.md`, `VISION.md`, and
+  `docs/plans/2026-06-25-workoutpact-digits-import.md` — documented the build
+  boundary and validation plan.
+
+### Validation
+
+- `PYTHONDONTWRITEBYTECODE=1 python3 scripts/test_async_flow_safety_contract.py`
+  — failed before the Swift change with the missing DigitsKit import finding,
+  then passed with thirteen hostile mutations rejected.
+- Host `/usr/bin/make check` — Make authority and Python compilation passed,
+  then the workflow contract stopped because Ruby is not installed.
+- Ruby 3.3.11 container `/usr/bin/make check` with Python 3.11.2 and GNU Make
+  4.3 — passed the complete portable contract and mutation gate; Xcode was
+  unavailable and skipped as designed.
+
+### Bugs / findings
+
+- `ViewController.swift` called `Digits.sharedInstance()` without importing the
+  external module that defines `Digits`; imports in other Swift files do not
+  expose those symbols to this file.
+
+### Blockers
+
+- Compatible legacy Xcode and SDK validation is unavailable on this Linux host.
+- The nested Codex CLI remains unauthenticated, so required branch review may
+  fail before analysis with HTTP 401.
+
+### Next action
+
+- Run `/usr/bin/make check`, open a focused pull request, require hosted checks
+  and Codex review, and merge only after both are clean.
+
 ## 2026-06-25 - P2 - Reserve logout navigation ownership
 
 - Rejected repeated logout taps and overlapping modal presentation before
