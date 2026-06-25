@@ -1,5 +1,72 @@
 # Changes
 
+## 2026-06-24 22:58 PDT - P2 - Surface workflow parser failures truthfully
+
+### Summary
+
+Completed the legacy SDK boundary revalidation note, then corrected the hosted
+workflow checker so unavailable Ruby/Psych infrastructure cannot masquerade as
+credential-policy failures or satisfy hostile mutation checks.
+
+### Work completed
+
+- Required `make check` plus compatible Xcode/device verification after future
+  legacy SDK boundary or referenced dependency changes.
+- Preserved YAML parser errors separately from semantic workflow rejection.
+- Added missing-parser and mutation-parser regression coverage.
+- Kept the Make authority synthetic checkout aligned with every invoked script.
+
+### Threads
+
+- Started and reviewed: code trace, history, blast-radius, and independent
+  hypothesis investigations — all converged on parser error-state loss.
+- Started and reviewed: TDD implementer — completed the focused repair.
+- Started and reviewed: correctness, quality, and security reviewers — all
+  approved after two targeted review findings were resolved.
+
+### Files changed
+
+- `docs/plans/2026-06-10-workoutpact-legacy-sdk-modernization-boundary.md` —
+  documented required revalidation after boundary changes.
+- `scripts/check_workoutpact_contracts.py` — separated parser infrastructure
+  errors from semantic workflow results.
+- `scripts/test_check_workoutpact_contracts.py` — added two parser-failure
+  regression tests.
+- `scripts/test-makefile-root.sh` — included the new test in the synthetic
+  authority checkout.
+- `Makefile` — compiled and executed the regression test.
+- `docs/plans/2026-06-24-workflow-parser-diagnostics.md` — recorded the repair
+  plan and acceptance evidence.
+- `docs/fixes/2026-06-24-workflow-parser-diagnostics.md` — documented the
+  diagnosis, repair, testing, and review verdicts.
+
+### Validation
+
+- `python3 scripts/test_check_workoutpact_contracts.py` — two tests passed.
+- Pre-fix mutation control — the mutation-parser regression failed against the
+  old checker, proving it detects continued evaluation after parser failure.
+- `/bin/sh scripts/test-makefile-root.sh` — all 35 authority cases passed.
+- Ubuntu 24.04 container `/usr/bin/make check` with Ruby 3.2.3, Psych 5.0.1,
+  Python 3.12.3, and GNU Make 4.3 — passed all contracts and mutations; Xcode
+  was unavailable and skipped as designed.
+- Fixer review — correctness, quality, and security approved.
+
+### Bugs / findings
+
+- Fixed a P2 verification defect where missing parser infrastructure produced
+  false checkout-policy diagnostics and could make mutation rejection pass
+  without semantic parsing.
+
+### Blockers
+
+- Compatible macOS Xcode and device verification remains required before a
+  release that changes the retained legacy SDK boundary or dependencies.
+
+### Next action
+
+- Push the updated PR, run Codex review against `master`, and merge after hosted
+  checks remain green.
+
 ## 2026-06-21
 
 - Isolated repository verification from caller-controlled Make startup files,

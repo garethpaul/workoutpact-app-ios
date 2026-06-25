@@ -177,18 +177,18 @@ def parse_workflow_yaml(workflow):
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        return None, [f"workflow YAML parser unavailable: {exc}"]
+        return None, [], [f"workflow YAML parser unavailable: {exc}"]
 
     if parsed.returncode != 0:
         detail = parsed.stderr.strip() or parsed.stdout.strip()
-        return None, [f"workflow YAML parser failed: {detail}"]
+        return None, [], [f"workflow YAML parser failed: {detail}"]
 
     try:
         payload = json.loads(parsed.stdout)
     except json.JSONDecodeError as exc:
-        return None, [f"workflow YAML parser returned invalid JSON: {exc}"]
+        return None, [], [f"workflow YAML parser returned invalid JSON: {exc}"]
 
-    return payload.get("data"), payload.get("errors", [])
+    return payload.get("data"), payload.get("errors", []), []
 
 
 def has_exact_keys(value, expected):
@@ -275,9 +275,13 @@ def static_contract_job_is_reviewed(job):
 
 
 def hosted_workflow_is_reviewed(workflow):
-    document, errors = parse_workflow_yaml(workflow)
-    if errors or not has_exact_keys(document, {"name", "on", "permissions", "concurrency", "jobs"}):
-        return False
+    document, document_errors, parser_errors = parse_workflow_yaml(workflow)
+    if parser_errors:
+        return False, parser_errors
+    if document_errors or not has_exact_keys(
+        document, {"name", "on", "permissions", "concurrency", "jobs"}
+    ):
+        return False, []
 
     permissions = document["permissions"]
     concurrency = document["concurrency"]
@@ -292,11 +296,21 @@ def hosted_workflow_is_reviewed(workflow):
         and scalar_equals(concurrency["cancel-in-progress"], "true", case_sensitive=False)
         and has_exact_keys(jobs, {"static-contracts"})
         and static_contract_job_is_reviewed(jobs["static-contracts"])
-    )
+    ), []
 
 
 def checkout_credentials_are_isolated(workflow):
     return hosted_workflow_is_reviewed(workflow)
+
+
+def workflow_mutations_are_rejected(mutations):
+    for mutated in mutations:
+        reviewed, parser_errors = checkout_credentials_are_isolated(mutated)
+        if parser_errors:
+            return False, parser_errors
+        if reviewed:
+            return False, []
+    return True, []
 
 
 def validate_login_lifecycle(login, failures):
@@ -973,11 +987,15 @@ def main():
         "hosted verification permissions must be read-only",
         failures,
     )
-    require(
-        checkout_credentials_are_isolated(workflow),
-        "checkout must disable persisted credentials on the immutable checkout step",
-        failures,
-    )
+    workflow_reviewed, workflow_parser_errors = checkout_credentials_are_isolated(workflow)
+    failures.extend(workflow_parser_errors)
+    workflow_checks_available = not workflow_parser_errors
+    if workflow_checks_available:
+        require(
+            workflow_reviewed,
+            "checkout must disable persisted credentials on the immutable checkout step",
+            failures,
+        )
     checkout_mutations = {
         "writable credentials": workflow.replace(
             CHECKOUT_CREDENTIAL_ISOLATION_BLOCK,
@@ -1025,14 +1043,18 @@ def main():
             1,
         ),
     }
-    require(
-        all(
-            not checkout_credentials_are_isolated(mutated)
-            for mutated in checkout_mutations.values()
-        ),
-        "checkout credential isolation mutations must be rejected",
-        failures,
-    )
+    if workflow_checks_available:
+        checkout_mutations_rejected, mutation_parser_errors = (
+            workflow_mutations_are_rejected(checkout_mutations.values())
+        )
+        failures.extend(mutation_parser_errors)
+        workflow_checks_available = not mutation_parser_errors
+        if workflow_checks_available:
+            require(
+                checkout_mutations_rejected,
+                "checkout credential isolation mutations must be rejected",
+                failures,
+            )
     checkout_missing = workflow.replace(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK + "\n", "")
     checkout_block_scalar_decoy = workflow.replace(CHECKOUT_CREDENTIAL_ISOLATION_BLOCK + "\n", "")
     checkout_block_scalar_decoy = (
@@ -1104,19 +1126,29 @@ def main():
         )
         + "\nenv:\n  RUN_DECOY: |\n      - name: Run portable verification\n        run: /usr/bin/make check\n",
     }
-    require(
-        checkout_credentials_are_isolated(checkout_input_mixed_case),
-        "checkout credential input must be normalized case-insensitively",
-        failures,
-    )
-    require(
-        all(
-            not checkout_credentials_are_isolated(mutated)
-            for mutated in hostile_workflow_mutations.values()
-        ),
-        "hostile workflow mutations must be rejected",
-        failures,
-    )
+    if workflow_checks_available:
+        mixed_case_reviewed, mixed_case_parser_errors = (
+            checkout_credentials_are_isolated(checkout_input_mixed_case)
+        )
+        failures.extend(mixed_case_parser_errors)
+        workflow_checks_available = not mixed_case_parser_errors
+        if workflow_checks_available:
+            require(
+                mixed_case_reviewed,
+                "checkout credential input must be normalized case-insensitively",
+                failures,
+            )
+    if workflow_checks_available:
+        hostile_mutations_rejected, mutation_parser_errors = (
+            workflow_mutations_are_rejected(hostile_workflow_mutations.values())
+        )
+        failures.extend(mutation_parser_errors)
+        if not mutation_parser_errors:
+            require(
+                hostile_mutations_rejected,
+                "hostile workflow mutations must be rejected",
+                failures,
+            )
     require(
         "python-version: ['3.10', '3.12', '3.14']" in workflow,
         "hosted verification must cover Python 3.10, 3.12, and 3.14",
