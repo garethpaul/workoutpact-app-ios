@@ -1,5 +1,14 @@
 # Changes
 
+## 2026-06-25 - P2 - Reserve logout navigation ownership
+
+- Rejected repeated logout taps and overlapping modal presentation before
+  queueing another login controller.
+- Claimed logout transition ownership before clearing Digits and Twitter
+  sessions, then weakly revalidated it on the main queue.
+- Released the reservation when login storyboard lookup or casting fails.
+- Extended the async-flow mutation suite from ten to twelve rejected mutations.
+
 ## 2026-06-24 22:58 PDT - P2 - Surface workflow parser failures truthfully
 
 ### Summary

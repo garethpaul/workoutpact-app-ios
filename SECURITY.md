@@ -43,6 +43,8 @@ devices.
   outcomes from the workout flow.
 - Overlapping shake confirmation is rejected while the workout controller owns
   an active confirmation/composer flow or already presents another modal.
+- Repeated logout actions cannot queue overlapping login presentation; queued
+  navigation weakly revalidates its transition owner before presenting.
 - Protected-screen keyboard movement should ignore duplicate show/hide
   notifications so sensitive UI does not drift off screen during text entry.
 - Stripe tokenization does not create a donation or charge in this prototype.
