@@ -173,6 +173,12 @@ def validate_shake(source, failures):
 
 def validate_logout(source, failures):
     require(
+        "import DigitsKit" in source
+        and before(source, "import DigitsKit", "class ViewController"),
+        "logout controller must import the DigitsKit module it uses",
+        failures,
+    )
+    require(
         "var logoutTransitionInFlight = false" in source,
         "logout flow needs one transition owner",
         failures,
@@ -265,6 +271,7 @@ def main():
         "shake duplicate guard": ("shake", "shareFlowInFlight || ", ""),
         "shake weak composer capture": ("shake", "composer.showWithCompletion { [weak self]", "composer.showWithCompletion {"),
         "logout duplicate guard": ("logout", "logoutTransitionInFlight || ", ""),
+        "logout Digits module import": ("logout", "import DigitsKit\n", ""),
         "logout weak queued capture": ("logout", "{ [weak self] in", "{"),
         "publishable key class": ("app_delegate", 'trimmedKey.hasPrefix("pk_test_")', 'trimmedKey.hasPrefix("pk_")'),
         "billing amount boundary": ("documentation", "server-authoritative integer minor units", "client-provided amount"),

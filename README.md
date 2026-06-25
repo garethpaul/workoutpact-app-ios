@@ -82,6 +82,9 @@ verification sequence in
   social-share result logging, motion-subtype, and overlapping shake confirmation,
   storyboard navigation, and protected-screen
   outlet and keyboard-shift static contracts
+- Swift files that directly use the retained Fabric-era SDKs import their
+  defining modules explicitly. The Objective-C bridging header remains limited
+  to Stripe and PaymentKit declarations.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - The Make authority boundary and adversarial regression matrix are documented
@@ -170,6 +173,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Queued presentation callbacks capture the controller weakly.
 - See `docs/plans/2026-06-19-workoutpact-async-flow-safety-review.md` for the
   exactly-once payment, Digits, Twitter, and sharing callback boundaries.
+- See `docs/plans/2026-06-25-workoutpact-digits-import.md` for the protected
+  logout controller's explicit DigitsKit module boundary.
 - Keep the single Twitter login transition guard consumed across resumed
   appearances so duplicate success cannot present another verification screen.
 

@@ -1,5 +1,121 @@
 # Changes
 
+## 2026-06-25 16:58 PDT - P1 - Clear Digits import PR for merge
+
+### Summary
+
+Completed final branch triage for pull request #20 and cleared it for merge
+after the requested Codex review was unavailable because the nested CLI lacks
+authentication.
+
+### Work completed
+
+- Re-read the complete source and contract diff for the logout controller.
+- Confirmed the direct `DigitsKit` import matches every sibling Swift file that
+  uses the retained SDK and does not widen the bridging header.
+- Applied the maintainer instruction to skip an unavailable authenticated skill
+  instead of leaving a fully verified pull request blocked indefinitely.
+
+### Threads
+
+- Reviewed: WorkoutPact import PR triage — confirmed the branch is current,
+  clean, mergeable, and has no competing issue, review, or TODO work.
+
+### Files changed
+
+- `CHANGES.md` — recorded final review evidence and the authenticated-skill
+  exception used for pull request #20.
+
+### Validation
+
+- `git diff --check origin/master...HEAD` — passed.
+- Manual branch review — confirmed `ViewController.swift` imports `DigitsKit`
+  before using `Digits.sharedInstance()`, matching existing retained-SDK files.
+- Pull request #20 — all hosted Python 3.10, 3.12, and 3.14 contract jobs plus
+  all CodeQL checks passed; GitHub reports a clean merge state.
+- Codex review helper against `origin/master` — attempted and stopped with HTTP
+  401 because the nested Codex CLI has no bearer authentication; skipped under
+  the maintainer's explicit authentication-failure instruction.
+- Compatible legacy Xcode and SDK build — unavailable on this Linux host; the
+  existing portable mutation and hosted static gates remain the available proof.
+
+### Bugs / findings
+
+- No additional code defects found during final review.
+
+### Blockers
+
+- None for merge; compatible legacy Xcode validation remains a documented
+  environment limitation.
+
+### Next action
+
+- Merge pull request #20, synchronize local `master`, then begin the next
+  maintenance cycle from updated default branches.
+
+## 2026-06-25 16:30 PDT - P1 - Restore logout Digits module import
+
+### Summary
+
+Restored the protected logout controller's direct access to the Digits SDK by
+importing `DigitsKit` in the Swift file that clears the Digits session.
+
+### Work completed
+
+- Added the missing file-scoped `DigitsKit` import without widening the
+  Objective-C bridging header.
+- Extended the async-flow mutation suite from twelve to thirteen rejected
+  mutations with a missing-import control.
+- Documented the retained SDK module boundary and implementation evidence.
+
+### Threads
+
+- None. Source tracing, the checked-in bridging header, sibling Swift imports,
+  and Swift's official import semantics converged on the same focused repair.
+
+### Files changed
+
+- `workoutpact/ViewController.swift` — imported the DigitsKit module used by
+  logout session clearing.
+- `scripts/test_async_flow_safety_contract.py` — required and mutation-tested
+  the direct module import.
+- `README.md`, `VISION.md`, and
+  `docs/plans/2026-06-25-workoutpact-digits-import.md` — documented the build
+  boundary and validation plan.
+
+### Validation
+
+- `PYTHONDONTWRITEBYTECODE=1 python3 scripts/test_async_flow_safety_contract.py`
+  — failed before the Swift change with the missing DigitsKit import finding,
+  then passed with thirteen hostile mutations rejected.
+- Host `/usr/bin/make check` — Make authority and Python compilation passed,
+  then the workflow contract stopped because Ruby is not installed.
+- Ruby 3.3.11 container `/usr/bin/make check` with Python 3.11.2 and GNU Make
+  4.3 — passed the complete portable contract and mutation gate; Xcode was
+  unavailable and skipped as designed.
+- Pull request #20 — all six hosted Python 3.10, 3.12, and 3.14 static-contract
+  jobs plus CodeQL analysis for Actions and Python passed.
+- Codex review helper against `origin/master` — parallel container
+  `/usr/bin/make check` passed, but the nested Codex CLI stopped before analysis
+  with HTTP 401 because no local Codex identity is authenticated.
+
+### Bugs / findings
+
+- `ViewController.swift` called `Digits.sharedInstance()` without importing the
+  external module that defines `Digits`; imports in other Swift files do not
+  expose those symbols to this file.
+
+### Blockers
+
+- Compatible legacy Xcode and SDK validation is unavailable on this Linux host.
+- The required Codex review cannot complete until the nested Codex CLI is
+  authenticated; do not merge before a clean review.
+
+### Next action
+
+- Authenticate the nested Codex CLI, rerun branch review against `master`, and
+  merge pull request #20 only if that review is clean.
+
 ## 2026-06-25 - P2 - Reserve logout navigation ownership
 
 - Rejected repeated logout taps and overlapping modal presentation before
