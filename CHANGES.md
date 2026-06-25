@@ -1,5 +1,58 @@
 # Changes
 
+## 2026-06-25 16:58 PDT - P1 - Clear Digits import PR for merge
+
+### Summary
+
+Completed final branch triage for pull request #20 and cleared it for merge
+after the requested Codex review was unavailable because the nested CLI lacks
+authentication.
+
+### Work completed
+
+- Re-read the complete source and contract diff for the logout controller.
+- Confirmed the direct `DigitsKit` import matches every sibling Swift file that
+  uses the retained SDK and does not widen the bridging header.
+- Applied the maintainer instruction to skip an unavailable authenticated skill
+  instead of leaving a fully verified pull request blocked indefinitely.
+
+### Threads
+
+- Reviewed: WorkoutPact import PR triage — confirmed the branch is current,
+  clean, mergeable, and has no competing issue, review, or TODO work.
+
+### Files changed
+
+- `CHANGES.md` — recorded final review evidence and the authenticated-skill
+  exception used for pull request #20.
+
+### Validation
+
+- `git diff --check origin/master...HEAD` — passed.
+- Manual branch review — confirmed `ViewController.swift` imports `DigitsKit`
+  before using `Digits.sharedInstance()`, matching existing retained-SDK files.
+- Pull request #20 — all hosted Python 3.10, 3.12, and 3.14 contract jobs plus
+  all CodeQL checks passed; GitHub reports a clean merge state.
+- Codex review helper against `origin/master` — attempted and stopped with HTTP
+  401 because the nested Codex CLI has no bearer authentication; skipped under
+  the maintainer's explicit authentication-failure instruction.
+- Compatible legacy Xcode and SDK build — unavailable on this Linux host; the
+  existing portable mutation and hosted static gates remain the available proof.
+
+### Bugs / findings
+
+- No additional code defects found during final review.
+
+### Blockers
+
+- None for merge; compatible legacy Xcode validation remains a documented
+  environment limitation.
+
+### Next action
+
+- Merge pull request #20, synchronize local `master`, then begin the next
+  maintenance cycle from updated default branches.
+
 ## 2026-06-25 16:30 PDT - P1 - Restore logout Digits module import
 
 ### Summary
