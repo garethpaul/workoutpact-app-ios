@@ -99,5 +99,10 @@ git commit -m "fix: import Digits in logout controller"
 - Ruby 3.3.11 container `/usr/bin/make check` with Python 3.11.2 and GNU Make
   4.3 passed the complete portable contract and mutation gate; Xcode was
   unavailable and skipped as designed.
+- Pull request #20 passed all six hosted Python static-contract jobs and CodeQL
+  analysis for Actions and Python.
+- The Codex review helper's parallel container gate passed, but the nested
+  Codex CLI returned HTTP 401 before review analysis because it is not
+  authenticated locally.
 - Legacy Xcode compilation remains conditional on a compatible macOS
   environment with the retained Pods and SDKs available.

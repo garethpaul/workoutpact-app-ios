@@ -40,6 +40,11 @@ importing `DigitsKit` in the Swift file that clears the Digits session.
 - Ruby 3.3.11 container `/usr/bin/make check` with Python 3.11.2 and GNU Make
   4.3 — passed the complete portable contract and mutation gate; Xcode was
   unavailable and skipped as designed.
+- Pull request #20 — all six hosted Python 3.10, 3.12, and 3.14 static-contract
+  jobs plus CodeQL analysis for Actions and Python passed.
+- Codex review helper against `origin/master` — parallel container
+  `/usr/bin/make check` passed, but the nested Codex CLI stopped before analysis
+  with HTTP 401 because no local Codex identity is authenticated.
 
 ### Bugs / findings
 
@@ -50,13 +55,13 @@ importing `DigitsKit` in the Swift file that clears the Digits session.
 ### Blockers
 
 - Compatible legacy Xcode and SDK validation is unavailable on this Linux host.
-- The nested Codex CLI remains unauthenticated, so required branch review may
-  fail before analysis with HTTP 401.
+- The required Codex review cannot complete until the nested Codex CLI is
+  authenticated; do not merge before a clean review.
 
 ### Next action
 
-- Run `/usr/bin/make check`, open a focused pull request, require hosted checks
-  and Codex review, and merge only after both are clean.
+- Authenticate the nested Codex CLI, rerun branch review against `master`, and
+  merge pull request #20 only if that review is clean.
 
 ## 2026-06-25 - P2 - Reserve logout navigation ownership
 
