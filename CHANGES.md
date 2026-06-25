@@ -50,6 +50,11 @@ credential-policy failures or satisfy hostile mutation checks.
   Python 3.12.3, and GNU Make 4.3 — passed all contracts and mutations; Xcode
   was unavailable and skipped as designed.
 - Fixer review — correctness, quality, and security approved.
+- Codex review helper against `origin/master` — attempted three times after
+  push; each run stopped before analysis with HTTP 401 because the nested Codex
+  CLI identity was not authenticated.
+- Hosted push and pull-request checks at `996de28` — all Python 3.10, 3.12, and
+  3.14 static-contract jobs plus CodeQL passed.
 
 ### Bugs / findings
 
@@ -61,11 +66,13 @@ credential-policy failures or satisfy hostile mutation checks.
 
 - Compatible macOS Xcode and device verification remains required before a
   release that changes the retained legacy SDK boundary or dependencies.
+- The required Codex review cannot run until the local nested Codex CLI identity
+  is authenticated; no merge should occur before that review completes cleanly.
 
 ### Next action
 
-- Push the updated PR, run Codex review against `master`, and merge after hosted
-  checks remain green.
+- Authenticate the nested Codex CLI, rerun branch review against `master`, and
+  merge PR #18 only if the review reports no accepted actionable findings.
 
 ## 2026-06-21
 
