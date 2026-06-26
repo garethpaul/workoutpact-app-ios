@@ -21,8 +21,17 @@ publishable key.
 
 - RED: the focused async-flow contract failed on configuration-aware validation,
   restoration, and shared availability state before implementation.
-- GREEN: focused and full portable evidence is recorded in
-  `docs/plans/2026-06-26-workoutpact-payment-submit-configuration.md`.
+- GREEN: root and external clean-copy gates passed the Make authority harness,
+  static contracts, two checker tests, 15 login lifecycle mutations, five
+  ownership mutations, five shake mutations, and 18 async-flow mutations.
+- Implementation head `ae6795b4a47059a4cca4bc63aba04ce4d4fa607a`
+  passed both Python 3.10/3.12/3.14 hosted matrices, CodeQL actions and Python
+  analyses, and the aggregate gate on pull request #23.
+- Required Codex review was attempted against `origin/master` and stopped
+  before analysis because both WebSocket and HTTPS transports returned OpenAI
+  HTTP 401. Immutable local, remote, and pull-request heads matched, and the
+  manual fallback review found no actionable defects.
+- Legacy `xcodebuild` remained unavailable and was skipped truthfully.
 
 ## 2026-06-26 06:16 PDT - P2 - Preserve payment input validity
 
