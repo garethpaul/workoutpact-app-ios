@@ -1,5 +1,29 @@
 # Changes
 
+## 2026-06-26 - P2 - Disable unconfigured payment submission
+
+### Summary
+
+Kept the payment UI aligned with the existing tokenization configuration guard
+so valid card input cannot expose an enabled Submit action without a Stripe test
+publishable key.
+
+### Work completed
+
+- Centralized Submit availability across card validation, view re-entry,
+  tokenization failure, defensive token handling, and alert cancellation.
+- Required current card validity, no active flow, and a configured test-mode
+  Stripe publishable key before enabling Submit.
+- Preserved the direct `createToken()` configuration guard for defensive calls.
+- Added hostile configuration-removal and unconditional-enable mutations.
+
+### Validation
+
+- RED: the focused async-flow contract failed on configuration-aware validation,
+  restoration, and shared availability state before implementation.
+- GREEN: focused and full portable evidence is recorded in
+  `docs/plans/2026-06-26-workoutpact-payment-submit-configuration.md`.
+
 ## 2026-06-26 06:16 PDT - P2 - Preserve payment input validity
 
 ### Summary

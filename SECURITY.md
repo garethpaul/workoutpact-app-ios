@@ -53,6 +53,8 @@ devices.
   the payment screen is visible before starting work or presenting billing UI.
 - Stripe failure and cancellation paths must restore Submit from the latest
   PaymentKit validity instead of enabling invalid card input unconditionally.
+- Stripe Submit availability must also require a configured test-mode
+  publishable key so disabled tokenization is not presented as actionable UI.
 - Stripe and Digits completions must retain their originating controller
   generation so callbacks cannot become valid again after reappearance.
 - Billing remains disabled. Any future backend must accept only

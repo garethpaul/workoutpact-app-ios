@@ -28,8 +28,14 @@ def validate_payment(source, failures):
     require("var paymentInputValid = false" in source, "payment flow must retain current card validity", failures)
     require(
         "paymentInputValid = valid" in source
-        and "button.enabled = paymentInputValid && !paymentFlowInFlight" in source,
-        "card validation must not re-enable submit during an active flow",
+        and "button.enabled = paymentSubmissionEnabled()" in source,
+        "card validation must not enable submit during an active or unconfigured flow",
+        failures,
+    )
+    require(
+        "func paymentSubmissionEnabled() -> Bool" in source
+        and "paymentInputValid && !paymentFlowInFlight && configuredStripePublishableKey() != nil" in source,
+        "payment submit availability must require valid input, no active flow, and a configured test key",
         failures,
     )
     require(
@@ -38,8 +44,8 @@ def validate_payment(source, failures):
         failures,
     )
     require(
-        "button.enabled = controller.paymentInputValid" in payment_completion,
-        "payment completion must restore submit from current card validity",
+        "button.enabled = controller.paymentSubmissionEnabled()" in payment_completion,
+        "payment completion must restore submit from current validity and key availability",
         failures,
     )
     require(
@@ -276,7 +282,8 @@ def main():
         "payment validity state": ("payment", "    var paymentInputValid = false\n", ""),
         "payment validity update": ("payment", "        paymentInputValid = valid\n", ""),
         "payment validity entry guard": ("payment", " || !paymentInputValid", ""),
-        "payment unconditional callback enable": ("payment", "controller.paymentInputValid", "true"),
+        "payment configured-key submit guard": ("payment", " && configuredStripePublishableKey() != nil", ""),
+        "payment unconditional callback enable": ("payment", "controller.paymentSubmissionEnabled()", "true"),
         "payment weak provider capture": ("payment", "completion: { [weak self]", "completion: {"),
         "Digits duplicate guard": ("two_factor", " || authenticationRequestInFlight", ""),
         "Digits weak provider capture": ("two_factor", ") { [weak self]", ") {"),
