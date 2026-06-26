@@ -1,5 +1,74 @@
 # Changes
 
+## 2026-06-26 06:16 PDT - P2 - Preserve payment input validity
+
+### Summary
+
+Kept the Submit button and tokenization entry guard aligned with the latest
+PaymentKit card validity across asynchronous Stripe failures and view re-entry.
+
+### Work completed
+
+- Added retained `paymentInputValid` state sourced from the existing
+  `PTKViewDelegate` callback.
+- Rejected direct tokenization when the latest card state is invalid.
+- Restored Submit from current validity after tokenization failure, defensive
+  token handling, cancellation, and payment-screen re-entry.
+- Added four mutation-sensitive async-flow regressions and narrowed the Stripe
+  completion assertion to prevent a later valid restoration from acting as a
+  decoy.
+- Updated README, security, vision, and the completed implementation plan.
+
+### Threads
+
+- Started: None — the race and its state owner were contained in one controller.
+- Continued: None.
+- Stopped: None.
+
+### Files changed
+
+- `workoutpact/PaymentViewController.swift` — retains and enforces current card
+  validity.
+- `scripts/test_async_flow_safety_contract.py` and
+  `scripts/check_workoutpact_contracts.py` — enforce invalid-entry rejection and
+  current-validity restoration.
+- `README.md`, `SECURITY.md`, and `VISION.md` — document the payment UI contract.
+- `docs/plans/2026-06-26-workoutpact-payment-validity-state.md` — records the
+  decision, implementation, failed mutation attempt, and evidence.
+
+### Validation
+
+- RED focused contract — failed on four missing validity invariants.
+- First hostile-mutation run — exposed a global-string decoy weakness; the
+  assertion was scoped to the Stripe completion block.
+- GREEN focused async-flow suite — passed with 17 hostile mutations rejected.
+- Python 3.10.20, 3.12.13, and 3.14.6 with Ruby 3.1.2 — full `make check`
+  passed the Make authority harness, checker compilation, static contracts,
+  two checker tests, 15 login lifecycle mutations, five ownership mutations,
+  five shake mutations, and 17 async-flow mutations.
+- Legacy `xcodebuild` — skipped truthfully because the compatible toolchain and
+  Pods are unavailable in the portable containers.
+- `git diff --check` — passed.
+- Hosted and exact-head gates remain pending.
+
+### Bugs / findings
+
+- P2 correctness: a Stripe failure callback could enable Submit after the user
+  edited the card into an invalid state during the request.
+- P2 test quality: a global restoration marker allowed another valid code path
+  to mask a mutated callback regression.
+
+### Blockers
+
+- Compatible legacy Xcode, Stripe, and PaymentKit runtime execution remains
+  unavailable locally; portable contracts and hosted static gates are the
+  available verification boundary.
+
+### Next action
+
+- Open the focused PR, review its exact head and hosted checks, and merge only
+  if every gate remains green.
+
 ## 2026-06-25 19:12 PDT - P2 - Clarify archival setup and payment boundary
 
 ### Summary
