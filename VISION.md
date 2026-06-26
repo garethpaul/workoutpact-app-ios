@@ -43,8 +43,8 @@ Priority:
 
 Next priorities:
 
-- Add README setup notes and archive status
-- Document payment-token flow and backend requirements
+- Keep archival setup, workspace, and no-backend payment documentation aligned
+  with the executable repository contracts
 - Add a real backend contract and tests before enabling billing
 - Modernize SDKs only in a dedicated compatibility pass
 

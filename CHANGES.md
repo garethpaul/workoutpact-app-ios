@@ -1,5 +1,60 @@
 # Changes
 
+## 2026-06-25 19:12 PDT - P2 - Clarify archival setup and payment boundary
+
+### Summary
+
+Moved WorkoutPact's legacy status ahead of setup, corrected the CocoaPods launch
+path to the checked-in workspace, and documented where client tokenization ends
+without creating a donation or charge.
+
+### Work completed
+
+- Separated current credential-free maintenance verification from historical
+  Xcode/CocoaPods reconstruction.
+- Directed Pod-based exploration through `workoutpact.xcworkspace` instead of
+  the standalone project.
+- Added a step-by-step payment token flow and the backend contract required
+  before real billing can be enabled.
+- Updated the roadmap and added a completed implementation plan plus static
+  documentation contracts.
+
+### Threads
+
+- None; repository evidence and checked-in workspace metadata were sufficient.
+
+### Files changed
+
+- `README.md` — added project status, corrected setup, and payment flow guidance.
+- `VISION.md` — replaced completed documentation priorities with upkeep guidance.
+- `scripts/check_workoutpact_contracts.py` — preserved the setup/status contract.
+- `docs/plans/2026-06-25-workoutpact-legacy-setup-status.md` — recorded requirements and proof.
+
+### Validation
+
+- RED contract run — failed on all four missing README requirements as expected.
+- Python 3.14.6 / Ruby 3.1.2 container `make check` — passed Make authority,
+  Python compilation, the full static contract, two checker tests, and all
+  login, ownership, shake-presentation, and async-flow mutation suites.
+- Xcode build — skipped as expected because no compatible legacy toolchain was
+  supplied to the portable Linux gate.
+- `git diff --check` — passed.
+
+### Bugs / findings
+
+- P2 developer workflow: the README paired `pod install` with opening the wrong
+  Xcode container and hid the non-production status below setup instructions.
+
+### Blockers
+
+- Compatible Swift 1/Xcode runtime validation remains unavailable and is not
+  required for this documentation-only correction.
+
+### Next action
+
+- Open a focused documentation PR, run Codex review when authentication permits,
+  and merge after hosted checks pass.
+
 ## 2026-06-25 16:58 PDT - P1 - Clear Digits import PR for merge
 
 ### Summary
