@@ -122,6 +122,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   after the payment screen has been covered.
 - Stale Stripe completions must return before re-enabling the payment button or
   handling an obsolete tokenization failure.
+- Submit tracks the latest PaymentKit validity across tokenization failures and
+  view re-entry, and invalid card input cannot start a request directly.
 - The shake-to-share flow should always require explicit user confirmation before opening Twitter composition.
 - The shake-to-share flow should gate on the delivered motion subtype before
   presenting the confirmation prompt.
@@ -138,7 +140,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 The checked-in payment screen stops at client-side Stripe tokenization:
 
-1. PaymentKit validates the local card form before enabling submission.
+1. PaymentKit validates the local card form before enabling submission; async
+   failures restore Submit only when the latest form state remains valid.
 2. The app requires a locally configured `pk_test_` publishable key and asks
    Stripe 4.0.3 to create a transient token.
 3. The token is neither persisted nor logged and is not sent to an application

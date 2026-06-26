@@ -21,15 +21,25 @@ def before(source, first, second):
 
 
 def validate_payment(source, failures):
+    payment_completion = source.split("createTokenWithCard", 1)[1].split(
+        "func handleToken", 1
+    )[0]
     require("var paymentFlowInFlight = false" in source, "payment flow needs one in-flight owner", failures)
+    require("var paymentInputValid = false" in source, "payment flow must retain current card validity", failures)
     require(
-        "button.enabled = valid && !paymentFlowInFlight" in source,
+        "paymentInputValid = valid" in source
+        and "button.enabled = paymentInputValid && !paymentFlowInFlight" in source,
         "card validation must not re-enable submit during an active flow",
         failures,
     )
     require(
-        "if !paymentViewVisible || paymentFlowInFlight" in source,
-        "payment entry must reject hidden or duplicate submissions",
+        "if !paymentViewVisible || paymentFlowInFlight || !paymentInputValid" in source,
+        "payment entry must reject hidden, duplicate, or invalid submissions",
+        failures,
+    )
+    require(
+        "button.enabled = controller.paymentInputValid" in payment_completion,
+        "payment completion must restore submit from current card validity",
         failures,
     )
     require(
@@ -263,6 +273,10 @@ def main():
 
     mutations = {
         "payment duplicate guard": ("payment", " || paymentFlowInFlight", ""),
+        "payment validity state": ("payment", "    var paymentInputValid = false\n", ""),
+        "payment validity update": ("payment", "        paymentInputValid = valid\n", ""),
+        "payment validity entry guard": ("payment", " || !paymentInputValid", ""),
+        "payment unconditional callback enable": ("payment", "controller.paymentInputValid", "true"),
         "payment weak provider capture": ("payment", "completion: { [weak self]", "completion: {"),
         "Digits duplicate guard": ("two_factor", " || authenticationRequestInFlight", ""),
         "Digits weak provider capture": ("two_factor", ") { [weak self]", ") {"),

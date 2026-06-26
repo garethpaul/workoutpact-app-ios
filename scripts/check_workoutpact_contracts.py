@@ -42,6 +42,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-21-workoutpact-make-authority-isolation.md",
     DOCS_PLANS / "2026-06-25-workoutpact-logout-transition.md",
     DOCS_PLANS / "2026-06-25-workoutpact-legacy-setup-status.md",
+    DOCS_PLANS / "2026-06-26-workoutpact-payment-validity-state.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -694,9 +695,10 @@ def main():
     require(
         "if let button = payButton" in payment
         and "button.enabled = false" in payment
-        and "button.enabled = valid && !paymentFlowInFlight" in payment
-        and "if let button = controller.payButton" in payment
-        and "button.enabled = true" in payment,
+        and "var paymentInputValid = false" in payment
+        and "paymentInputValid = valid" in payment
+        and "button.enabled = paymentInputValid && !paymentFlowInFlight" in payment
+        and "if let button = controller.payButton" in payment,
         "payment submit button state must be guarded while preserving validation and token callback behavior",
         failures,
     )
@@ -751,8 +753,13 @@ def main():
     disappearance_method = payment.split("override func viewWillDisappear", 1)[1].split(
         "func paymentView", 1
     )[0]
-    lifecycle_guard = "if !paymentViewVisible || paymentFlowInFlight"
+    lifecycle_guard = "if !paymentViewVisible || paymentFlowInFlight || !paymentInputValid"
     completion_guard = "!controller.paymentViewVisible"
+    require(
+        "button.enabled = controller.paymentInputValid" in payment_request,
+        "Stripe failure handling must restore submit from current card validity",
+        failures,
+    )
     require(
         "paymentViewVisible = true" in appearance_method
         and "paymentViewVisible = false" in disappearance_method,
@@ -1355,6 +1362,29 @@ def main():
         require(
             "overlapping shake confirmation" in read_text(doc).lower(),
             f"{doc} must document the overlapping shake confirmation guard",
+            failures,
+        )
+
+    payment_validity_plan = read_text(
+        "docs/plans/2026-06-26-workoutpact-payment-validity-state.md"
+    )
+    require(
+        "Status: Completed" in payment_validity_plan
+        and "17 hostile mutations rejected" in payment_validity_plan
+        and "decoy weakness" in payment_validity_plan
+        and "make check" in payment_validity_plan,
+        "payment validity plan must record completed mutation and gate evidence",
+        failures,
+    )
+    for document_name, document, phrase in (
+        ("README.md", readme, "Submit tracks the latest PaymentKit validity"),
+        ("SECURITY.md", security, "restore Submit from the latest"),
+        ("VISION.md", vision, "Preserve the latest PaymentKit validity"),
+        ("CHANGES.md", changes, "payment input validity"),
+    ):
+        require(
+            phrase in document,
+            f"{document_name} must document retained payment input validity",
             failures,
         )
 
