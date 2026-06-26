@@ -41,6 +41,7 @@ CANONICAL_PLANS = [
     DOCS_PLANS / "2026-06-21-workoutpact-checkout-credential-isolation.md",
     DOCS_PLANS / "2026-06-21-workoutpact-make-authority-isolation.md",
     DOCS_PLANS / "2026-06-25-workoutpact-logout-transition.md",
+    DOCS_PLANS / "2026-06-25-workoutpact-legacy-setup-status.md",
 ]
 WORKFLOW = ROOT / ".github/workflows/check.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -999,6 +1000,18 @@ def main():
             not missing_terms,
             f"{document_name} must document the legacy SDK boundary: "
             + ", ".join(missing_terms),
+            failures,
+        )
+    normalized_readme = " ".join(readme.split())
+    for phrase in (
+        "## Project Status",
+        "not production-ready",
+        "`workoutpact.xcworkspace`",
+        "Do not open `workoutpact.xcodeproj` after installing Pods",
+    ):
+        require(
+            phrase in normalized_readme,
+            f"README.md must preserve the legacy setup/status guidance: {phrase}",
             failures,
         )
     require(WORKFLOW.is_file(), "hosted verification workflow must exist", failures)

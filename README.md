@@ -9,6 +9,14 @@
 
 This README is based on the checked-in source, manifests, scripts, and repository metadata on the `master` branch. The project language mix found during review was: C/C++ headers (40), Swift (8).
 
+## Project Status
+
+This repository is an archival Swift 1-era prototype targeting iOS 8.3. It is
+preserved for source review and maintenance-contract testing; it is not
+production-ready and is not expected to build unchanged with a current Xcode or
+iOS SDK. The app has no billing backend, creates no donation or charge, and
+must not be configured with production credentials.
+
 ## Repository Contents
 
 - `Podfile` - Apple platform dependency metadata
@@ -35,22 +43,32 @@ Additional scan context:
 ### Prerequisites
 
 - Git
-- macOS with Xcode for building Apple platform projects
-- CocoaPods if dependencies need to be installed
+- Python 3 and Ruby for the portable maintenance contracts
+- A compatible legacy macOS/Xcode toolchain only if reconstructing the app
+- CocoaPods capable of resolving the checked-in Stripe 4.0.3 and PaymentKit
+  1.1.1 lockfile only if reconstructing the historical workspace
 
 ### Setup
 
 ```bash
 git clone https://github.com/garethpaul/workoutpact-app-ios.git
 cd workoutpact-app-ios
-pod install
+/usr/bin/make check
 ```
 
-The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
+The portable verification path does not install Pods, load credentials, or
+create a charge. To reconstruct the historical Xcode workspace on a compatible
+machine, run `pod install`, then open `workoutpact.xcworkspace`. Do not open
+`workoutpact.xcodeproj` after installing Pods; the workspace is the checked-in
+container that includes both the app project and `Pods/Pods.xcodeproj`.
 
 ## Running or Using the Project
 
-- Open `workoutpact.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
+- For source and contract verification, run `/usr/bin/make check` from the
+  repository root.
+- For historical app exploration, open `workoutpact.xcworkspace` in a compatible
+  legacy Xcode toolchain, choose the app scheme, and use a matching simulator or
+  device without production credentials.
 
 ## Testing and Verification
 
@@ -115,6 +133,25 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Billing remains disabled; any future backend must validate
   server-authoritative integer minor units and an explicit ISO 4217 currency
   allowlist.
+
+## Payment Token Flow
+
+The checked-in payment screen stops at client-side Stripe tokenization:
+
+1. PaymentKit validates the local card form before enabling submission.
+2. The app requires a locally configured `pk_test_` publishable key and asks
+   Stripe 4.0.3 to create a transient token.
+3. The token is neither persisted nor logged and is not sent to an application
+   server because this repository has no billing backend.
+4. The app presents a `Billing unavailable` notice stating that no donation or
+   charge was created. Only the explicit `Continue without billing` action may
+   advance to the workout-sharing screen.
+
+Real billing must remain disabled until a separate, tested backend contract
+defines authenticated ownership, server-authoritative integer minor units,
+allowed ISO 4217 currencies, idempotent charge creation, provider error
+handling, and auditable success/failure behavior. Client-provided card data,
+amounts, or success claims are not a substitute for that backend boundary.
 
 ## Security and Privacy Notes
 
