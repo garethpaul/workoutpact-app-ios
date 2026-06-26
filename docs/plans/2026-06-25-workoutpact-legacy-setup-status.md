@@ -30,4 +30,7 @@ stops without a backend.
 - Python 3.14.6 / Ruby 3.1.2 container `make check` passed Make authority,
   Python compilation, the full static contract, checker tests, and every
   lifecycle/async mutation suite; the legacy Xcode build skipped as expected.
+- Codex review targeted `origin/master` for pull request #21 but was skipped
+  after repeated HTTP 401 authentication failures; manual exact-diff review
+  found no actionable issue.
 - `git diff --check` verifies patch formatting.

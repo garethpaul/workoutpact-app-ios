@@ -39,6 +39,11 @@ without creating a donation or charge.
 - Xcode build — skipped as expected because no compatible legacy toolchain was
   supplied to the portable Linux gate.
 - `git diff --check` — passed.
+- Codex review helper against `origin/master` — attempted for pull request #21
+  and skipped after repeated HTTP 401 authentication failures; no finding was
+  produced.
+- Manual exact-diff review — no actionable correctness, security, or contract
+  issue found.
 
 ### Bugs / findings
 
@@ -49,11 +54,12 @@ without creating a donation or charge.
 
 - Compatible Swift 1/Xcode runtime validation remains unavailable and is not
   required for this documentation-only correction.
+- Authenticated Codex review is unavailable in this environment and was skipped
+  under the maintainer's explicit authentication-failure instruction.
 
 ### Next action
 
-- Open a focused documentation PR, run Codex review when authentication permits,
-  and merge after hosted checks pass.
+- Merge pull request #21 after the final hosted checks pass.
 
 ## 2026-06-25 16:58 PDT - P1 - Clear Digits import PR for merge
 
