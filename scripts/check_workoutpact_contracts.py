@@ -697,9 +697,15 @@ def main():
         and "button.enabled = false" in payment
         and "var paymentInputValid = false" in payment
         and "paymentInputValid = valid" in payment
-        and "button.enabled = paymentInputValid && !paymentFlowInFlight" in payment
+        and "button.enabled = paymentSubmissionEnabled()" in payment
         and "if let button = controller.payButton" in payment,
-        "payment submit button state must be guarded while preserving validation and token callback behavior",
+        "payment submit button state must be guarded by validation, configuration, and token callback behavior",
+        failures,
+    )
+    require(
+        "func paymentSubmissionEnabled() -> Bool" in payment
+        and "paymentInputValid && !paymentFlowInFlight && configuredStripePublishableKey() != nil" in payment,
+        "payment Submit availability must remain disabled without a configured Stripe test key",
         failures,
     )
     require(
@@ -756,8 +762,8 @@ def main():
     lifecycle_guard = "if !paymentViewVisible || paymentFlowInFlight || !paymentInputValid"
     completion_guard = "!controller.paymentViewVisible"
     require(
-        "button.enabled = controller.paymentInputValid" in payment_request,
-        "Stripe failure handling must restore submit from current card validity",
+        "button.enabled = controller.paymentSubmissionEnabled()" in payment_request,
+        "Stripe failure handling must restore submit from current validity and key availability",
         failures,
     )
     require(
@@ -1385,6 +1391,28 @@ def main():
         require(
             phrase in document,
             f"{document_name} must document retained payment input validity",
+            failures,
+        )
+
+    payment_submit_plan = read_text(
+        "docs/plans/2026-06-26-workoutpact-payment-submit-configuration.md"
+    )
+    require(
+        "Status: Completed" in payment_submit_plan
+        and "paymentSubmissionEnabled()" in payment_submit_plan
+        and "configured Stripe test-key" in payment_submit_plan,
+        "payment Submit configuration plan must record the shared availability boundary",
+        failures,
+    )
+    for document_name, document, phrase in (
+        ("README.md", readme, "Submit remains disabled until"),
+        ("SECURITY.md", security, "Stripe Submit availability"),
+        ("VISION.md", vision, "Keep Submit disabled when Stripe test-key"),
+        ("CHANGES.md", changes, "unconfigured payment submission"),
+    ):
+        require(
+            phrase in document,
+            f"{document_name} must document configuration-aware Submit availability",
             failures,
         )
 

@@ -23,6 +23,7 @@ Priority:
 - Keep retained SDK imports explicit in every Swift file that uses their symbols
 - Keep payment UI state guarded while tokenization is in flight
 - Preserve the latest PaymentKit validity across async failure and view re-entry
+- Keep Submit disabled when Stripe test-key configuration is unavailable
 - Reject payment requests and callbacks after the payment screen is covered
 - Keep pre-dismissal Stripe and Digits callbacks invalid after reappearance
 - Keep PaymentKit input guarded before tokenization

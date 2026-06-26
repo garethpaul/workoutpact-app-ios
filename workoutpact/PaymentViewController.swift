@@ -41,7 +41,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         paymentViewVisible = true
         paymentFlowInFlight = false
         if let button = payButton {
-            button.enabled = paymentInputValid
+            button.enabled = paymentSubmissionEnabled()
         }
     }
 
@@ -51,10 +51,14 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         paymentViewVisible = false
     }
 
+    func paymentSubmissionEnabled() -> Bool {
+        return paymentInputValid && !paymentFlowInFlight && configuredStripePublishableKey() != nil
+    }
+
     func paymentView(paymentView: PTKView!, withCard card: PTKCard!, isValid valid: Bool) {
         paymentInputValid = valid
         if let button = payButton {
-            button.enabled = paymentInputValid && !paymentFlowInFlight
+            button.enabled = paymentSubmissionEnabled()
         }
     }
 
@@ -96,7 +100,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
                         if error != nil || token == nil {
                             controller.paymentFlowInFlight = false
                             if let button = controller.payButton {
-                                button.enabled = controller.paymentInputValid
+                                button.enabled = controller.paymentSubmissionEnabled()
                             }
                             NSLog("Stripe tokenization failed.")
                             return
@@ -117,7 +121,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         if token == nil {
             paymentFlowInFlight = false
             if let button = payButton {
-                button.enabled = paymentInputValid
+                button.enabled = paymentSubmissionEnabled()
             }
             NSLog("Stripe returned an empty token.")
             return
@@ -126,7 +130,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
         if self.presentedViewController != nil {
             paymentFlowInFlight = false
             if let button = payButton {
-                button.enabled = paymentInputValid
+                button.enabled = paymentSubmissionEnabled()
             }
             NSLog("Payment result UI is already being presented.")
             return
@@ -140,7 +144,7 @@ class PaymentViewController: UIViewController, PTKViewDelegate {
             if let controller = self {
                 controller.paymentFlowInFlight = false
                 if let button = controller.payButton {
-                    button.enabled = controller.paymentInputValid
+                    button.enabled = controller.paymentSubmissionEnabled()
                 }
             }
         }))
